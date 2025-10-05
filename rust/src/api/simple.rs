@@ -25,6 +25,12 @@ pub fn init_app() {
     flutter_rust_bridge::setup_default_user_utils();
 }
 
+/// 获取当前 Rust crate 的版本号 (来自 Cargo.toml)。
+#[flutter_rust_bridge::frb(sync)]
+pub fn get_backend_version() -> String {
+    env!("CARGO_PKG_VERSION").to_string()
+}
+
 // Process information structure
 #[derive(Debug, Clone)]
 pub struct ProcessInfo {

@@ -279,16 +279,25 @@ class _ProcessesPageState extends State<ProcessesPage> {
 
   Widget _buildTreeView() {
     // 构建进程树结构
+    final Map<int, ProcessInfo> processMap = {
+      for (var p in _filteredProcesses) p.pid: p,
+    };
     final Map<int, List<ProcessInfo>> childrenMap = {};
     final List<ProcessInfo> rootProcesses = [];
 
     for (final process in _filteredProcesses) {
-      if (process.parentPid == null) {
-        rootProcesses.add(process);
+      final parentPid = process.parentPid;
+      if (parentPid != null &&
+          parentPid != 0 &&
+          processMap.containsKey(parentPid)) {
+        childrenMap.putIfAbsent(parentPid, () => []).add(process);
       } else {
-        childrenMap.putIfAbsent(process.parentPid!, () => []).add(process);
+        rootProcesses.add(process);
       }
     }
+
+    // 对根进程进行排序
+    rootProcesses.sort((a, b) => a.name.compareTo(b.name));
 
     return ListView.builder(
       itemCount: rootProcesses.length,

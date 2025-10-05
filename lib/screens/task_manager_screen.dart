@@ -30,28 +30,71 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          '任务管理器',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        elevation: 2,
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(icon: Icon(MdiIcons.memory), text: '进程'),
-            Tab(icon: Icon(MdiIcons.chartLine), text: '图表'),
-            Tab(icon: Icon(MdiIcons.information), text: '信息'),
-          ],
-          indicatorSize: TabBarIndicatorSize.tab,
-          dividerColor: Colors.transparent,
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [ProcessesPage(), ChartsPage(), SystemInfoPage()],
+      // 使用系统原生标题栏，不显示自定义AppBar
+      body: Column(
+        children: [
+          // 系统标题栏区域（自动处理）
+          SafeArea(
+            bottom: false,
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Column(
+                children: [
+                  const SizedBox(height: 16),
+                  // 标签栏
+                  TabBar(
+                    controller: _tabController,
+                    tabs: [
+                      Tab(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(MdiIcons.memory, size: 18),
+                            const SizedBox(width: 8),
+                            const Text('进程'),
+                          ],
+                        ),
+                      ),
+                      Tab(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(MdiIcons.chartLine, size: 18),
+                            const SizedBox(width: 8),
+                            const Text('图表'),
+                          ],
+                        ),
+                      ),
+                      Tab(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(MdiIcons.information, size: 18),
+                            const SizedBox(width: 8),
+                            const Text('信息'),
+                          ],
+                        ),
+                      ),
+                    ],
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    dividerColor: Colors.transparent,
+                    labelPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // 页面内容
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [ProcessesPage(), ChartsPage(), SystemInfoPage()],
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -281,6 +281,18 @@ impl SseDecode for Vec<crate::api::simple::DiskInfo> {
     }
 }
 
+impl SseDecode for Vec<f64> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<f64>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<u8> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -386,6 +398,7 @@ impl SseDecode for crate::api::simple::SystemResourceInfo {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_cpuUsage = <f64>::sse_decode(deserializer);
+        let mut var_cpuPerCore = <Vec<f64>>::sse_decode(deserializer);
         let mut var_memoryTotal = <u64>::sse_decode(deserializer);
         let mut var_memoryUsed = <u64>::sse_decode(deserializer);
         let mut var_memoryAvailable = <u64>::sse_decode(deserializer);
@@ -396,6 +409,7 @@ impl SseDecode for crate::api::simple::SystemResourceInfo {
         let mut var_networkUsage = <crate::api::simple::NetworkInfo>::sse_decode(deserializer);
         return crate::api::simple::SystemResourceInfo {
             cpu_usage: var_cpuUsage,
+            cpu_per_core: var_cpuPerCore,
             memory_total: var_memoryTotal,
             memory_used: var_memoryUsed,
             memory_available: var_memoryAvailable,
@@ -578,6 +592,7 @@ impl flutter_rust_bridge::IntoDart for crate::api::simple::SystemResourceInfo {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
             self.cpu_usage.into_into_dart().into_dart(),
+            self.cpu_per_core.into_into_dart().into_dart(),
             self.memory_total.into_into_dart().into_dart(),
             self.memory_used.into_into_dart().into_dart(),
             self.memory_available.into_into_dart().into_dart(),
@@ -640,6 +655,16 @@ impl SseEncode for Vec<crate::api::simple::DiskInfo> {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
             <crate::api::simple::DiskInfo>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<f64> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <f64>::sse_encode(item, serializer);
         }
     }
 }
@@ -717,6 +742,7 @@ impl SseEncode for crate::api::simple::SystemResourceInfo {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <f64>::sse_encode(self.cpu_usage, serializer);
+        <Vec<f64>>::sse_encode(self.cpu_per_core, serializer);
         <u64>::sse_encode(self.memory_total, serializer);
         <u64>::sse_encode(self.memory_used, serializer);
         <u64>::sse_encode(self.memory_available, serializer);

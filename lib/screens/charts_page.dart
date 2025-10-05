@@ -112,9 +112,15 @@ class _ChartsPageState extends State<ChartsPage> {
           _memoryData.removeAt(0);
         }
 
-        // 模拟交换分区数据
-        final swapPercentage = (memoryPercentage * 0.1).clamp(0, 10).toDouble();
-        _swapData.add(FlSpot(_timeIndex, swapPercentage));
+        // 实际交换分区数据
+        if (resources.swapTotal > BigInt.zero) {
+          final swapPercentage =
+              (resources.swapUsed.toDouble() / resources.swapTotal.toDouble()) *
+              100;
+          _swapData.add(FlSpot(_timeIndex, swapPercentage));
+        } else {
+          _swapData.add(FlSpot(_timeIndex, 0));
+        }
         if (_swapData.length > _maxDataPoints) {
           _swapData.removeAt(0);
         }
@@ -523,8 +529,10 @@ class _ChartsPageState extends State<ChartsPage> {
                   title: '交换分区',
                   color: const Color(0xFF9B59B6),
                   data: _swapData,
-                  subtitle: '128 MB / 2.0 GB',
-                  maxY: 20,
+                  subtitle: resources.swapTotal > BigInt.zero
+                      ? '${_formatBytes(resources.swapUsed)} / ${_formatBytes(resources.swapTotal)}'
+                      : '未启用',
+                  maxY: 100,
                 ),
               ),
             ],

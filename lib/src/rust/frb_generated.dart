@@ -283,6 +283,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  Float64List dco_decode_list_prim_f_64_strict(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as Float64List;
+  }
+
+  @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as Uint8List;
@@ -355,18 +361,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   SystemResourceInfo dco_decode_system_resource_info(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 9)
-      throw Exception('unexpected arr length: expect 9 but see ${arr.length}');
+    if (arr.length != 10)
+      throw Exception('unexpected arr length: expect 10 but see ${arr.length}');
     return SystemResourceInfo(
       cpuUsage: dco_decode_f_64(arr[0]),
-      memoryTotal: dco_decode_u_64(arr[1]),
-      memoryUsed: dco_decode_u_64(arr[2]),
-      memoryAvailable: dco_decode_u_64(arr[3]),
-      swapTotal: dco_decode_u_64(arr[4]),
-      swapUsed: dco_decode_u_64(arr[5]),
-      swapFree: dco_decode_u_64(arr[6]),
-      diskUsage: dco_decode_list_disk_info(arr[7]),
-      networkUsage: dco_decode_network_info(arr[8]),
+      cpuPerCore: dco_decode_list_prim_f_64_strict(arr[1]),
+      memoryTotal: dco_decode_u_64(arr[2]),
+      memoryUsed: dco_decode_u_64(arr[3]),
+      memoryAvailable: dco_decode_u_64(arr[4]),
+      swapTotal: dco_decode_u_64(arr[5]),
+      swapUsed: dco_decode_u_64(arr[6]),
+      swapFree: dco_decode_u_64(arr[7]),
+      diskUsage: dco_decode_list_disk_info(arr[8]),
+      networkUsage: dco_decode_network_info(arr[9]),
     );
   }
 
@@ -446,6 +453,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       ans_.add(sse_decode_disk_info(deserializer));
     }
     return ans_;
+  }
+
+  @protected
+  Float64List sse_decode_list_prim_f_64_strict(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var len_ = sse_decode_i_32(deserializer);
+    return deserializer.buffer.getFloat64List(len_);
   }
 
   @protected
@@ -547,6 +561,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_cpuUsage = sse_decode_f_64(deserializer);
+    var var_cpuPerCore = sse_decode_list_prim_f_64_strict(deserializer);
     var var_memoryTotal = sse_decode_u_64(deserializer);
     var var_memoryUsed = sse_decode_u_64(deserializer);
     var var_memoryAvailable = sse_decode_u_64(deserializer);
@@ -557,6 +572,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_networkUsage = sse_decode_network_info(deserializer);
     return SystemResourceInfo(
       cpuUsage: var_cpuUsage,
+      cpuPerCore: var_cpuPerCore,
       memoryTotal: var_memoryTotal,
       memoryUsed: var_memoryUsed,
       memoryAvailable: var_memoryAvailable,
@@ -644,6 +660,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_list_prim_f_64_strict(
+    Float64List self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    serializer.buffer.putFloat64List(self);
+  }
+
+  @protected
   void sse_encode_list_prim_u_8_strict(
     Uint8List self,
     SseSerializer serializer,
@@ -718,6 +744,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_f_64(self.cpuUsage, serializer);
+    sse_encode_list_prim_f_64_strict(self.cpuPerCore, serializer);
     sse_encode_u_64(self.memoryTotal, serializer);
     sse_encode_u_64(self.memoryUsed, serializer);
     sse_encode_u_64(self.memoryAvailable, serializer);

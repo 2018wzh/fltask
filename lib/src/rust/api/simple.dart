@@ -193,6 +193,7 @@ class SystemInfo {
 
 class SystemResourceInfo {
   final double cpuUsage;
+  final Float64List cpuPerCore;
   final BigInt memoryTotal;
   final BigInt memoryUsed;
   final BigInt memoryAvailable;
@@ -204,6 +205,7 @@ class SystemResourceInfo {
 
   const SystemResourceInfo({
     required this.cpuUsage,
+    required this.cpuPerCore,
     required this.memoryTotal,
     required this.memoryUsed,
     required this.memoryAvailable,
@@ -217,6 +219,7 @@ class SystemResourceInfo {
   @override
   int get hashCode =>
       cpuUsage.hashCode ^
+      cpuPerCore.hashCode ^
       memoryTotal.hashCode ^
       memoryUsed.hashCode ^
       memoryAvailable.hashCode ^
@@ -232,6 +235,7 @@ class SystemResourceInfo {
       other is SystemResourceInfo &&
           runtimeType == other.runtimeType &&
           cpuUsage == other.cpuUsage &&
+          cpuPerCore == other.cpuPerCore &&
           memoryTotal == other.memoryTotal &&
           memoryUsed == other.memoryUsed &&
           memoryAvailable == other.memoryAvailable &&

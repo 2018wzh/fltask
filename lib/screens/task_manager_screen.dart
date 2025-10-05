@@ -204,19 +204,6 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
                     _showThemeDialog();
                   },
                 ),
-                // 语言设置 (预留)
-                ListTile(
-                  leading: Icon(MdiIcons.translate),
-                  title: const Text('语言'),
-                  subtitle: const Text('简体中文'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    // TODO: 实现语言设置
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(const SnackBar(content: Text('语言设置功能待实现')));
-                  },
-                ),
               ],
             ),
           ),

@@ -250,7 +250,7 @@ class _ProcessTreeItemState extends State<ProcessTreeItem> {
 class _ProcessDetailsDialog extends StatelessWidget {
   final ProcessInfo process;
 
-  const _ProcessDetailsDialog({super.key, required this.process});
+  const _ProcessDetailsDialog({required this.process});
 
   String _formatBytes(BigInt bytes) {
     const suffixes = ['B', 'KB', 'MB', 'GB'];

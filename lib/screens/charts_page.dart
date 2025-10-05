@@ -234,10 +234,26 @@ class _ChartsPageState extends State<ChartsPage> {
                           dotData: const FlDotData(show: false),
                           belowBarData: BarAreaData(
                             show: true,
-                            color: color.withValues(alpha: 0.3),
+                            color: color.withAlpha(77), // 0.3 opacity
                           ),
                         ),
                       ],
+                      lineTouchData: LineTouchData(
+                        touchTooltipData: LineTouchTooltipData(
+                          getTooltipItems: (touchedSpots) {
+                            return touchedSpots.map((spot) {
+                              final value = spot.y;
+                              return LineTooltipItem(
+                                '${value.toStringAsFixed(2)}$yAxisSuffix',
+                                TextStyle(
+                                  color: color,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              );
+                            }).toList();
+                          },
+                        ),
+                      ),
                     ),
                   )
                 : Center(
@@ -349,6 +365,25 @@ class _ChartsPageState extends State<ChartsPage> {
                           dotData: const FlDotData(show: false),
                         );
                       }).toList(),
+                      lineTouchData: LineTouchData(
+                        touchTooltipData: LineTouchTooltipData(
+                          getTooltipItems: (touchedSpots) {
+                            return touchedSpots.map((spot) {
+                              final index = spot.barIndex;
+                              final value = spot.y;
+                              return LineTooltipItem(
+                                'CPU$index: ${value.toStringAsFixed(2)}%',
+                                TextStyle(
+                                  color:
+                                      _cpuCoreColors[index %
+                                          _cpuCoreColors.length],
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              );
+                            }).toList();
+                          },
+                        ),
+                      ),
                     ),
                   )
                 : Center(

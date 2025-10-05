@@ -3,6 +3,8 @@ use std::ffi::OsString;
 use std::mem;
 use std::os::windows::ffi::OsStringExt;
 
+use std::time::{SystemTime, UNIX_EPOCH};
+
 use winapi::um::winbase::GetComputerNameW;
 use windows::{core::PCWSTR, Win32::System::{Registry::*, SystemInformation::*}};
 
@@ -36,6 +38,14 @@ pub fn get_system_info_impl() -> SystemInfo {
 
         // 获取CPU信息
         let cpu_brand = get_cpu_brand();
+        
+        // 获取运行时间和启动时间
+        let uptime = get_system_uptime();
+        let current_time = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs();
+        let boot_time = current_time.saturating_sub(uptime);
 
         SystemInfo {
             os_name: "Windows".to_string(),
@@ -45,8 +55,8 @@ pub fn get_system_info_impl() -> SystemInfo {
             cpu_brand,
             cpu_cores: sys_info.dwNumberOfProcessors,
             total_memory: mem_status.ullTotalPhys,
-            boot_time: 0, // 需要通过WMI或注册表获取
-            uptime: get_system_uptime(),
+            boot_time,
+            uptime,
         }
     }
 }

@@ -350,21 +350,6 @@ class _SystemInfoPageState extends State<SystemInfoPage> {
                 ),
               ],
             ),
-
-            const SizedBox(height: 16),
-
-            // 刷新按钮
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: _loadSystemInfo,
-                icon: const Icon(Icons.refresh),
-                label: const Text('刷新信息'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-              ),
-            ),
           ],
         ),
       ),

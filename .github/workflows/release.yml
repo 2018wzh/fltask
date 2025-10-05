@@ -1,0 +1,175 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  verify:
+    name: Verify tag on release branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Ensure tag commit is contained in release branch
+        run: |
+          git fetch origin release --depth=1 || git fetch origin release
+          if git merge-base --is-ancestor $GITHUB_SHA origin/release; then
+            echo "Tag commit is on release branch."
+          else
+            echo "Tag commit is NOT on release branch. Abort." >&2
+            exit 1
+          fi
+
+  build:
+    name: Build (${{ matrix.build_target }})
+    needs: verify
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            build_target: windows
+            artifact_path: build/windows/x64/runner/Release
+            archive_ext: zip
+          - os: ubuntu-latest
+            build_target: linux
+            artifact_path: build/linux/x64/release/bundle
+            archive_ext: tar.gz
+          - os: macos-latest
+            build_target: macos
+            artifact_path: build/macos/Build/Products/Release
+            archive_ext: zip
+
+    env:
+      TAG_NAME: ${{ github.ref_name }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Setup Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Cache pub packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+          key: pub-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            pub-${{ runner.os }}-
+
+      - name: Cache cargo registry + git
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            rust/target
+          key: cargo-${{ runner.os }}-${{ hashFiles('rust/Cargo.lock') }}
+          restore-keys: |
+            cargo-${{ runner.os }}-
+
+      - name: Install Linux build deps
+        if: matrix.build_target == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
+      - name: Install cargo-xcode (macOS)
+        if: matrix.build_target == 'macos'
+        run: cargo install cargo-xcode
+
+      - name: flutter pub get
+        run: flutter pub get
+
+      - name: Build Flutter (${{ matrix.build_target }})
+        run: flutter build ${{ matrix.build_target }} --release
+
+      - name: List build outputs (debug)
+        run: |
+          echo "Listing artifact directory: ${{ matrix.artifact_path }}" || true
+          ls -R ${{ matrix.artifact_path }} || true
+
+      - name: Package artifact (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          tar -czf fltask-${{ env.TAG_NAME }}-linux-x64.tar.gz -C ${{ matrix.artifact_path }} .
+
+      - name: Package artifact (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          zip -r fltask-${{ env.TAG_NAME }}-macos-x64.zip ${{ matrix.artifact_path }}
+
+      - name: Package artifact (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: powershell
+        run: |
+          Compress-Archive -Path "${{ matrix.artifact_path }}\*" -DestinationPath "fltask-${{ env.TAG_NAME }}-windows-x64.zip"
+
+      - name: Upload packaged artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: packaged-${{ matrix.build_target }}
+          path: |
+            fltask-${{ env.TAG_NAME }}-*${{ matrix.archive_ext }}
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TAG_NAME: ${{ github.ref_name }}
+    steps:
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Show downloaded files
+        run: |
+          ls -R dist
+
+      - name: Create / Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          name: fltask ${{ env.TAG_NAME }}
+          body: |
+            Automated release for tag ${{ env.TAG_NAME }}.
+            - Built from commit ${{ github.sha }}
+            - Generated on ${{ runner.os }} matrix.
+          draft: false
+          prerelease: false
+          files: |
+            dist/**/fltask-${{ env.TAG_NAME }}-linux-x64.tar.gz
+            dist/**/fltask-${{ env.TAG_NAME }}-macos-x64.zip
+            dist/**/fltask-${{ env.TAG_NAME }}-windows-x64.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

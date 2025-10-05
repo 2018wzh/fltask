@@ -37,7 +37,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1918914929;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1670184670;
 
 // Section: executor
 
@@ -45,6 +45,122 @@ flutter_rust_bridge::frb_generated_default_handler!();
 
 // Section: wire_funcs
 
+fn wire__crate__api__simple__get_backend_version_impl(
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "get_backend_version",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end();
+            transform_result_sse::<_, ()>((move || {
+                let output_ok = Result::<_, ()>::Ok(crate::api::simple::get_backend_version())?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__api__simple__get_processes_impl(
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "get_processes",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end();
+            transform_result_sse::<_, ()>((move || {
+                let output_ok = Result::<_, ()>::Ok(crate::api::simple::get_processes())?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__api__simple__get_system_info_impl(
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "get_system_info",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end();
+            transform_result_sse::<_, ()>((move || {
+                let output_ok = Result::<_, ()>::Ok(crate::api::simple::get_system_info())?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__api__simple__get_system_resources_impl(
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "get_system_resources",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end();
+            transform_result_sse::<_, ()>((move || {
+                let output_ok = Result::<_, ()>::Ok(crate::api::simple::get_system_resources())?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
 fn wire__crate__api__simple__greet_impl(
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -109,6 +225,36 @@ fn wire__crate__api__simple__init_app_impl(
         },
     )
 }
+fn wire__crate__api__simple__kill_process_impl(
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "kill_process",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_pid = <u32>::sse_decode(&mut deserializer);
+            deserializer.end();
+            transform_result_sse::<_, ()>((move || {
+                let output_ok = Result::<_, ()>::Ok(crate::api::simple::kill_process(api_pid))?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
 
 // Section: dart2rust
 
@@ -117,6 +263,62 @@ impl SseDecode for String {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut inner = <Vec<u8>>::sse_decode(deserializer);
         return String::from_utf8(inner).unwrap();
+    }
+}
+
+impl SseDecode for bool {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        deserializer.cursor.read_u8().unwrap() != 0
+    }
+}
+
+impl SseDecode for crate::api::simple::DiskInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_name = <String>::sse_decode(deserializer);
+        let mut var_mountPoint = <String>::sse_decode(deserializer);
+        let mut var_totalSpace = <u64>::sse_decode(deserializer);
+        let mut var_usedSpace = <u64>::sse_decode(deserializer);
+        let mut var_availableSpace = <u64>::sse_decode(deserializer);
+        return crate::api::simple::DiskInfo {
+            name: var_name,
+            mount_point: var_mountPoint,
+            total_space: var_totalSpace,
+            used_space: var_usedSpace,
+            available_space: var_availableSpace,
+        };
+    }
+}
+
+impl SseDecode for f64 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        deserializer.cursor.read_f64::<NativeEndian>().unwrap()
+    }
+}
+
+impl SseDecode for Vec<crate::api::simple::DiskInfo> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::simple::DiskInfo>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<f64> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<f64>::sse_decode(deserializer));
+        }
+        return ans_;
     }
 }
 
@@ -129,6 +331,137 @@ impl SseDecode for Vec<u8> {
             ans_.push(<u8>::sse_decode(deserializer));
         }
         return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::api::simple::ProcessInfo> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::simple::ProcessInfo>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for crate::api::simple::NetworkInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_bytesSent = <u64>::sse_decode(deserializer);
+        let mut var_bytesReceived = <u64>::sse_decode(deserializer);
+        let mut var_packetsSent = <u64>::sse_decode(deserializer);
+        let mut var_packetsReceived = <u64>::sse_decode(deserializer);
+        return crate::api::simple::NetworkInfo {
+            bytes_sent: var_bytesSent,
+            bytes_received: var_bytesReceived,
+            packets_sent: var_packetsSent,
+            packets_received: var_packetsReceived,
+        };
+    }
+}
+
+impl SseDecode for Option<u32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<u32>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for crate::api::simple::ProcessInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_pid = <u32>::sse_decode(deserializer);
+        let mut var_name = <String>::sse_decode(deserializer);
+        let mut var_cpuUsage = <f64>::sse_decode(deserializer);
+        let mut var_memoryUsage = <u64>::sse_decode(deserializer);
+        let mut var_parentPid = <Option<u32>>::sse_decode(deserializer);
+        let mut var_status = <String>::sse_decode(deserializer);
+        let mut var_command = <String>::sse_decode(deserializer);
+        let mut var_startTime = <u64>::sse_decode(deserializer);
+        return crate::api::simple::ProcessInfo {
+            pid: var_pid,
+            name: var_name,
+            cpu_usage: var_cpuUsage,
+            memory_usage: var_memoryUsage,
+            parent_pid: var_parentPid,
+            status: var_status,
+            command: var_command,
+            start_time: var_startTime,
+        };
+    }
+}
+
+impl SseDecode for crate::api::simple::SystemInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_osName = <String>::sse_decode(deserializer);
+        let mut var_osVersion = <String>::sse_decode(deserializer);
+        let mut var_kernelVersion = <String>::sse_decode(deserializer);
+        let mut var_hostname = <String>::sse_decode(deserializer);
+        let mut var_cpuBrand = <String>::sse_decode(deserializer);
+        let mut var_cpuCores = <u32>::sse_decode(deserializer);
+        let mut var_totalMemory = <u64>::sse_decode(deserializer);
+        let mut var_bootTime = <u64>::sse_decode(deserializer);
+        let mut var_uptime = <u64>::sse_decode(deserializer);
+        return crate::api::simple::SystemInfo {
+            os_name: var_osName,
+            os_version: var_osVersion,
+            kernel_version: var_kernelVersion,
+            hostname: var_hostname,
+            cpu_brand: var_cpuBrand,
+            cpu_cores: var_cpuCores,
+            total_memory: var_totalMemory,
+            boot_time: var_bootTime,
+            uptime: var_uptime,
+        };
+    }
+}
+
+impl SseDecode for crate::api::simple::SystemResourceInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_cpuUsage = <f64>::sse_decode(deserializer);
+        let mut var_cpuPerCore = <Vec<f64>>::sse_decode(deserializer);
+        let mut var_memoryTotal = <u64>::sse_decode(deserializer);
+        let mut var_memoryUsed = <u64>::sse_decode(deserializer);
+        let mut var_memoryAvailable = <u64>::sse_decode(deserializer);
+        let mut var_swapTotal = <u64>::sse_decode(deserializer);
+        let mut var_swapUsed = <u64>::sse_decode(deserializer);
+        let mut var_swapFree = <u64>::sse_decode(deserializer);
+        let mut var_diskUsage = <Vec<crate::api::simple::DiskInfo>>::sse_decode(deserializer);
+        let mut var_networkUsage = <crate::api::simple::NetworkInfo>::sse_decode(deserializer);
+        return crate::api::simple::SystemResourceInfo {
+            cpu_usage: var_cpuUsage,
+            cpu_per_core: var_cpuPerCore,
+            memory_total: var_memoryTotal,
+            memory_used: var_memoryUsed,
+            memory_available: var_memoryAvailable,
+            swap_total: var_swapTotal,
+            swap_used: var_swapUsed,
+            swap_free: var_swapFree,
+            disk_usage: var_diskUsage,
+            network_usage: var_networkUsage,
+        };
+    }
+}
+
+impl SseDecode for u32 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        deserializer.cursor.read_u32::<NativeEndian>().unwrap()
+    }
+}
+
+impl SseDecode for u64 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        deserializer.cursor.read_u64::<NativeEndian>().unwrap()
     }
 }
 
@@ -151,13 +484,6 @@ impl SseDecode for i32 {
     }
 }
 
-impl SseDecode for bool {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        deserializer.cursor.read_u8().unwrap() != 0
-    }
-}
-
 fn pde_ffi_dispatcher_primary_impl(
     func_id: i32,
     port: flutter_rust_bridge::for_generated::MessagePort,
@@ -167,7 +493,7 @@ fn pde_ffi_dispatcher_primary_impl(
 ) {
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
-        2 => wire__crate__api__simple__init_app_impl(port, ptr, rust_vec_len, data_len),
+        6 => wire__crate__api__simple__init_app_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -180,17 +506,196 @@ fn pde_ffi_dispatcher_sync_impl(
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
-        1 => wire__crate__api__simple__greet_impl(ptr, rust_vec_len, data_len),
+        1 => wire__crate__api__simple__get_backend_version_impl(ptr, rust_vec_len, data_len),
+        2 => wire__crate__api__simple__get_processes_impl(ptr, rust_vec_len, data_len),
+        3 => wire__crate__api__simple__get_system_info_impl(ptr, rust_vec_len, data_len),
+        4 => wire__crate__api__simple__get_system_resources_impl(ptr, rust_vec_len, data_len),
+        5 => wire__crate__api__simple__greet_impl(ptr, rust_vec_len, data_len),
+        7 => wire__crate__api__simple__kill_process_impl(ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
 
 // Section: rust2dart
 
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::simple::DiskInfo {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.name.into_into_dart().into_dart(),
+            self.mount_point.into_into_dart().into_dart(),
+            self.total_space.into_into_dart().into_dart(),
+            self.used_space.into_into_dart().into_dart(),
+            self.available_space.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::api::simple::DiskInfo {}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::simple::DiskInfo>
+    for crate::api::simple::DiskInfo
+{
+    fn into_into_dart(self) -> crate::api::simple::DiskInfo {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::simple::NetworkInfo {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.bytes_sent.into_into_dart().into_dart(),
+            self.bytes_received.into_into_dart().into_dart(),
+            self.packets_sent.into_into_dart().into_dart(),
+            self.packets_received.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::simple::NetworkInfo
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::simple::NetworkInfo>
+    for crate::api::simple::NetworkInfo
+{
+    fn into_into_dart(self) -> crate::api::simple::NetworkInfo {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::simple::ProcessInfo {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.pid.into_into_dart().into_dart(),
+            self.name.into_into_dart().into_dart(),
+            self.cpu_usage.into_into_dart().into_dart(),
+            self.memory_usage.into_into_dart().into_dart(),
+            self.parent_pid.into_into_dart().into_dart(),
+            self.status.into_into_dart().into_dart(),
+            self.command.into_into_dart().into_dart(),
+            self.start_time.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::simple::ProcessInfo
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::simple::ProcessInfo>
+    for crate::api::simple::ProcessInfo
+{
+    fn into_into_dart(self) -> crate::api::simple::ProcessInfo {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::simple::SystemInfo {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.os_name.into_into_dart().into_dart(),
+            self.os_version.into_into_dart().into_dart(),
+            self.kernel_version.into_into_dart().into_dart(),
+            self.hostname.into_into_dart().into_dart(),
+            self.cpu_brand.into_into_dart().into_dart(),
+            self.cpu_cores.into_into_dart().into_dart(),
+            self.total_memory.into_into_dart().into_dart(),
+            self.boot_time.into_into_dart().into_dart(),
+            self.uptime.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::simple::SystemInfo
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::simple::SystemInfo>
+    for crate::api::simple::SystemInfo
+{
+    fn into_into_dart(self) -> crate::api::simple::SystemInfo {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::simple::SystemResourceInfo {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.cpu_usage.into_into_dart().into_dart(),
+            self.cpu_per_core.into_into_dart().into_dart(),
+            self.memory_total.into_into_dart().into_dart(),
+            self.memory_used.into_into_dart().into_dart(),
+            self.memory_available.into_into_dart().into_dart(),
+            self.swap_total.into_into_dart().into_dart(),
+            self.swap_used.into_into_dart().into_dart(),
+            self.swap_free.into_into_dart().into_dart(),
+            self.disk_usage.into_into_dart().into_dart(),
+            self.network_usage.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::simple::SystemResourceInfo
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::simple::SystemResourceInfo>
+    for crate::api::simple::SystemResourceInfo
+{
+    fn into_into_dart(self) -> crate::api::simple::SystemResourceInfo {
+        self
+    }
+}
+
 impl SseEncode for String {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <Vec<u8>>::sse_encode(self.into_bytes(), serializer);
+    }
+}
+
+impl SseEncode for bool {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        serializer.cursor.write_u8(self as _).unwrap();
+    }
+}
+
+impl SseEncode for crate::api::simple::DiskInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.name, serializer);
+        <String>::sse_encode(self.mount_point, serializer);
+        <u64>::sse_encode(self.total_space, serializer);
+        <u64>::sse_encode(self.used_space, serializer);
+        <u64>::sse_encode(self.available_space, serializer);
+    }
+}
+
+impl SseEncode for f64 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        serializer.cursor.write_f64::<NativeEndian>(self).unwrap();
+    }
+}
+
+impl SseEncode for Vec<crate::api::simple::DiskInfo> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::simple::DiskInfo>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<f64> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <f64>::sse_encode(item, serializer);
+        }
     }
 }
 
@@ -201,6 +706,95 @@ impl SseEncode for Vec<u8> {
         for item in self {
             <u8>::sse_encode(item, serializer);
         }
+    }
+}
+
+impl SseEncode for Vec<crate::api::simple::ProcessInfo> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::simple::ProcessInfo>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for crate::api::simple::NetworkInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u64>::sse_encode(self.bytes_sent, serializer);
+        <u64>::sse_encode(self.bytes_received, serializer);
+        <u64>::sse_encode(self.packets_sent, serializer);
+        <u64>::sse_encode(self.packets_received, serializer);
+    }
+}
+
+impl SseEncode for Option<u32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <u32>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for crate::api::simple::ProcessInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u32>::sse_encode(self.pid, serializer);
+        <String>::sse_encode(self.name, serializer);
+        <f64>::sse_encode(self.cpu_usage, serializer);
+        <u64>::sse_encode(self.memory_usage, serializer);
+        <Option<u32>>::sse_encode(self.parent_pid, serializer);
+        <String>::sse_encode(self.status, serializer);
+        <String>::sse_encode(self.command, serializer);
+        <u64>::sse_encode(self.start_time, serializer);
+    }
+}
+
+impl SseEncode for crate::api::simple::SystemInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.os_name, serializer);
+        <String>::sse_encode(self.os_version, serializer);
+        <String>::sse_encode(self.kernel_version, serializer);
+        <String>::sse_encode(self.hostname, serializer);
+        <String>::sse_encode(self.cpu_brand, serializer);
+        <u32>::sse_encode(self.cpu_cores, serializer);
+        <u64>::sse_encode(self.total_memory, serializer);
+        <u64>::sse_encode(self.boot_time, serializer);
+        <u64>::sse_encode(self.uptime, serializer);
+    }
+}
+
+impl SseEncode for crate::api::simple::SystemResourceInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <f64>::sse_encode(self.cpu_usage, serializer);
+        <Vec<f64>>::sse_encode(self.cpu_per_core, serializer);
+        <u64>::sse_encode(self.memory_total, serializer);
+        <u64>::sse_encode(self.memory_used, serializer);
+        <u64>::sse_encode(self.memory_available, serializer);
+        <u64>::sse_encode(self.swap_total, serializer);
+        <u64>::sse_encode(self.swap_used, serializer);
+        <u64>::sse_encode(self.swap_free, serializer);
+        <Vec<crate::api::simple::DiskInfo>>::sse_encode(self.disk_usage, serializer);
+        <crate::api::simple::NetworkInfo>::sse_encode(self.network_usage, serializer);
+    }
+}
+
+impl SseEncode for u32 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        serializer.cursor.write_u32::<NativeEndian>(self).unwrap();
+    }
+}
+
+impl SseEncode for u64 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        serializer.cursor.write_u64::<NativeEndian>(self).unwrap();
     }
 }
 
@@ -220,13 +814,6 @@ impl SseEncode for i32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         serializer.cursor.write_i32::<NativeEndian>(self).unwrap();
-    }
-}
-
-impl SseEncode for bool {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        serializer.cursor.write_u8(self as _).unwrap();
     }
 }
 

@@ -66,7 +66,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => -1918914929;
+  int get rustContentHash => 1670184670;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -77,9 +77,19 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 }
 
 abstract class RustLibApi extends BaseApi {
+  String crateApiSimpleGetBackendVersion();
+
+  List<ProcessInfo> crateApiSimpleGetProcesses();
+
+  SystemInfo crateApiSimpleGetSystemInfo();
+
+  SystemResourceInfo crateApiSimpleGetSystemResources();
+
   String crateApiSimpleGreet({required String name});
 
   Future<void> crateApiSimpleInitApp();
+
+  bool crateApiSimpleKillProcess({required int pid});
 }
 
 class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
@@ -91,13 +101,101 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   });
 
   @override
+  String crateApiSimpleGetBackendVersion() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 1)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiSimpleGetBackendVersionConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiSimpleGetBackendVersionConstMeta =>
+      const TaskConstMeta(debugName: "get_backend_version", argNames: []);
+
+  @override
+  List<ProcessInfo> crateApiSimpleGetProcesses() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 2)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_list_process_info,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiSimpleGetProcessesConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiSimpleGetProcessesConstMeta =>
+      const TaskConstMeta(debugName: "get_processes", argNames: []);
+
+  @override
+  SystemInfo crateApiSimpleGetSystemInfo() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 3)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_system_info,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiSimpleGetSystemInfoConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiSimpleGetSystemInfoConstMeta =>
+      const TaskConstMeta(debugName: "get_system_info", argNames: []);
+
+  @override
+  SystemResourceInfo crateApiSimpleGetSystemResources() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 4)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_system_resource_info,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiSimpleGetSystemResourcesConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiSimpleGetSystemResourcesConstMeta =>
+      const TaskConstMeta(debugName: "get_system_resources", argNames: []);
+
+  @override
   String crateApiSimpleGreet({required String name}) {
     return handler.executeSync(
       SyncTask(
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_String(name, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 1)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 5)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_String,
@@ -122,7 +220,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 2,
+            funcId: 6,
             port: port_,
           );
         },
@@ -140,6 +238,29 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   TaskConstMeta get kCrateApiSimpleInitAppConstMeta =>
       const TaskConstMeta(debugName: "init_app", argNames: []);
 
+  @override
+  bool crateApiSimpleKillProcess({required int pid}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_u_32(pid, serializer);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 7)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiSimpleKillProcessConstMeta,
+        argValues: [pid],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiSimpleKillProcessConstMeta =>
+      const TaskConstMeta(debugName: "kill_process", argNames: ["pid"]);
+
   @protected
   String dco_decode_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -147,9 +268,149 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  bool dco_decode_bool(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as bool;
+  }
+
+  @protected
+  int dco_decode_box_autoadd_u_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as int;
+  }
+
+  @protected
+  DiskInfo dco_decode_disk_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 5)
+      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
+    return DiskInfo(
+      name: dco_decode_String(arr[0]),
+      mountPoint: dco_decode_String(arr[1]),
+      totalSpace: dco_decode_u_64(arr[2]),
+      usedSpace: dco_decode_u_64(arr[3]),
+      availableSpace: dco_decode_u_64(arr[4]),
+    );
+  }
+
+  @protected
+  double dco_decode_f_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as double;
+  }
+
+  @protected
+  List<DiskInfo> dco_decode_list_disk_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_disk_info).toList();
+  }
+
+  @protected
+  Float64List dco_decode_list_prim_f_64_strict(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as Float64List;
+  }
+
+  @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as Uint8List;
+  }
+
+  @protected
+  List<ProcessInfo> dco_decode_list_process_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_process_info).toList();
+  }
+
+  @protected
+  NetworkInfo dco_decode_network_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    return NetworkInfo(
+      bytesSent: dco_decode_u_64(arr[0]),
+      bytesReceived: dco_decode_u_64(arr[1]),
+      packetsSent: dco_decode_u_64(arr[2]),
+      packetsReceived: dco_decode_u_64(arr[3]),
+    );
+  }
+
+  @protected
+  int? dco_decode_opt_box_autoadd_u_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_u_32(raw);
+  }
+
+  @protected
+  ProcessInfo dco_decode_process_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 8)
+      throw Exception('unexpected arr length: expect 8 but see ${arr.length}');
+    return ProcessInfo(
+      pid: dco_decode_u_32(arr[0]),
+      name: dco_decode_String(arr[1]),
+      cpuUsage: dco_decode_f_64(arr[2]),
+      memoryUsage: dco_decode_u_64(arr[3]),
+      parentPid: dco_decode_opt_box_autoadd_u_32(arr[4]),
+      status: dco_decode_String(arr[5]),
+      command: dco_decode_String(arr[6]),
+      startTime: dco_decode_u_64(arr[7]),
+    );
+  }
+
+  @protected
+  SystemInfo dco_decode_system_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 9)
+      throw Exception('unexpected arr length: expect 9 but see ${arr.length}');
+    return SystemInfo(
+      osName: dco_decode_String(arr[0]),
+      osVersion: dco_decode_String(arr[1]),
+      kernelVersion: dco_decode_String(arr[2]),
+      hostname: dco_decode_String(arr[3]),
+      cpuBrand: dco_decode_String(arr[4]),
+      cpuCores: dco_decode_u_32(arr[5]),
+      totalMemory: dco_decode_u_64(arr[6]),
+      bootTime: dco_decode_u_64(arr[7]),
+      uptime: dco_decode_u_64(arr[8]),
+    );
+  }
+
+  @protected
+  SystemResourceInfo dco_decode_system_resource_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 10)
+      throw Exception('unexpected arr length: expect 10 but see ${arr.length}');
+    return SystemResourceInfo(
+      cpuUsage: dco_decode_f_64(arr[0]),
+      cpuPerCore: dco_decode_list_prim_f_64_strict(arr[1]),
+      memoryTotal: dco_decode_u_64(arr[2]),
+      memoryUsed: dco_decode_u_64(arr[3]),
+      memoryAvailable: dco_decode_u_64(arr[4]),
+      swapTotal: dco_decode_u_64(arr[5]),
+      swapUsed: dco_decode_u_64(arr[6]),
+      swapFree: dco_decode_u_64(arr[7]),
+      diskUsage: dco_decode_list_disk_info(arr[8]),
+      networkUsage: dco_decode_network_info(arr[9]),
+    );
+  }
+
+  @protected
+  int dco_decode_u_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as int;
+  }
+
+  @protected
+  BigInt dco_decode_u_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dcoDecodeU64(raw);
   }
 
   @protected
@@ -172,10 +433,191 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  bool sse_decode_bool(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getUint8() != 0;
+  }
+
+  @protected
+  int sse_decode_box_autoadd_u_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_u_32(deserializer));
+  }
+
+  @protected
+  DiskInfo sse_decode_disk_info(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_name = sse_decode_String(deserializer);
+    var var_mountPoint = sse_decode_String(deserializer);
+    var var_totalSpace = sse_decode_u_64(deserializer);
+    var var_usedSpace = sse_decode_u_64(deserializer);
+    var var_availableSpace = sse_decode_u_64(deserializer);
+    return DiskInfo(
+      name: var_name,
+      mountPoint: var_mountPoint,
+      totalSpace: var_totalSpace,
+      usedSpace: var_usedSpace,
+      availableSpace: var_availableSpace,
+    );
+  }
+
+  @protected
+  double sse_decode_f_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getFloat64();
+  }
+
+  @protected
+  List<DiskInfo> sse_decode_list_disk_info(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <DiskInfo>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_disk_info(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  Float64List sse_decode_list_prim_f_64_strict(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var len_ = sse_decode_i_32(deserializer);
+    return deserializer.buffer.getFloat64List(len_);
+  }
+
+  @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var len_ = sse_decode_i_32(deserializer);
     return deserializer.buffer.getUint8List(len_);
+  }
+
+  @protected
+  List<ProcessInfo> sse_decode_list_process_info(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <ProcessInfo>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_process_info(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  NetworkInfo sse_decode_network_info(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_bytesSent = sse_decode_u_64(deserializer);
+    var var_bytesReceived = sse_decode_u_64(deserializer);
+    var var_packetsSent = sse_decode_u_64(deserializer);
+    var var_packetsReceived = sse_decode_u_64(deserializer);
+    return NetworkInfo(
+      bytesSent: var_bytesSent,
+      bytesReceived: var_bytesReceived,
+      packetsSent: var_packetsSent,
+      packetsReceived: var_packetsReceived,
+    );
+  }
+
+  @protected
+  int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_u_32(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  ProcessInfo sse_decode_process_info(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_pid = sse_decode_u_32(deserializer);
+    var var_name = sse_decode_String(deserializer);
+    var var_cpuUsage = sse_decode_f_64(deserializer);
+    var var_memoryUsage = sse_decode_u_64(deserializer);
+    var var_parentPid = sse_decode_opt_box_autoadd_u_32(deserializer);
+    var var_status = sse_decode_String(deserializer);
+    var var_command = sse_decode_String(deserializer);
+    var var_startTime = sse_decode_u_64(deserializer);
+    return ProcessInfo(
+      pid: var_pid,
+      name: var_name,
+      cpuUsage: var_cpuUsage,
+      memoryUsage: var_memoryUsage,
+      parentPid: var_parentPid,
+      status: var_status,
+      command: var_command,
+      startTime: var_startTime,
+    );
+  }
+
+  @protected
+  SystemInfo sse_decode_system_info(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_osName = sse_decode_String(deserializer);
+    var var_osVersion = sse_decode_String(deserializer);
+    var var_kernelVersion = sse_decode_String(deserializer);
+    var var_hostname = sse_decode_String(deserializer);
+    var var_cpuBrand = sse_decode_String(deserializer);
+    var var_cpuCores = sse_decode_u_32(deserializer);
+    var var_totalMemory = sse_decode_u_64(deserializer);
+    var var_bootTime = sse_decode_u_64(deserializer);
+    var var_uptime = sse_decode_u_64(deserializer);
+    return SystemInfo(
+      osName: var_osName,
+      osVersion: var_osVersion,
+      kernelVersion: var_kernelVersion,
+      hostname: var_hostname,
+      cpuBrand: var_cpuBrand,
+      cpuCores: var_cpuCores,
+      totalMemory: var_totalMemory,
+      bootTime: var_bootTime,
+      uptime: var_uptime,
+    );
+  }
+
+  @protected
+  SystemResourceInfo sse_decode_system_resource_info(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_cpuUsage = sse_decode_f_64(deserializer);
+    var var_cpuPerCore = sse_decode_list_prim_f_64_strict(deserializer);
+    var var_memoryTotal = sse_decode_u_64(deserializer);
+    var var_memoryUsed = sse_decode_u_64(deserializer);
+    var var_memoryAvailable = sse_decode_u_64(deserializer);
+    var var_swapTotal = sse_decode_u_64(deserializer);
+    var var_swapUsed = sse_decode_u_64(deserializer);
+    var var_swapFree = sse_decode_u_64(deserializer);
+    var var_diskUsage = sse_decode_list_disk_info(deserializer);
+    var var_networkUsage = sse_decode_network_info(deserializer);
+    return SystemResourceInfo(
+      cpuUsage: var_cpuUsage,
+      cpuPerCore: var_cpuPerCore,
+      memoryTotal: var_memoryTotal,
+      memoryUsed: var_memoryUsed,
+      memoryAvailable: var_memoryAvailable,
+      swapTotal: var_swapTotal,
+      swapUsed: var_swapUsed,
+      swapFree: var_swapFree,
+      diskUsage: var_diskUsage,
+      networkUsage: var_networkUsage,
+    );
+  }
+
+  @protected
+  int sse_decode_u_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getUint32();
+  }
+
+  @protected
+  BigInt sse_decode_u_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getBigUint64();
   }
 
   @protected
@@ -196,15 +638,59 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  bool sse_decode_bool(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    return deserializer.buffer.getUint8() != 0;
-  }
-
-  @protected
   void sse_encode_String(String self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_list_prim_u_8_strict(utf8.encoder.convert(self), serializer);
+  }
+
+  @protected
+  void sse_encode_bool(bool self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putUint8(self ? 1 : 0);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_32(self, serializer);
+  }
+
+  @protected
+  void sse_encode_disk_info(DiskInfo self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.name, serializer);
+    sse_encode_String(self.mountPoint, serializer);
+    sse_encode_u_64(self.totalSpace, serializer);
+    sse_encode_u_64(self.usedSpace, serializer);
+    sse_encode_u_64(self.availableSpace, serializer);
+  }
+
+  @protected
+  void sse_encode_f_64(double self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putFloat64(self);
+  }
+
+  @protected
+  void sse_encode_list_disk_info(
+    List<DiskInfo> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_disk_info(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_prim_f_64_strict(
+    Float64List self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    serializer.buffer.putFloat64List(self);
   }
 
   @protected
@@ -215,6 +701,94 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     serializer.buffer.putUint8List(self);
+  }
+
+  @protected
+  void sse_encode_list_process_info(
+    List<ProcessInfo> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_process_info(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_network_info(NetworkInfo self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_64(self.bytesSent, serializer);
+    sse_encode_u_64(self.bytesReceived, serializer);
+    sse_encode_u_64(self.packetsSent, serializer);
+    sse_encode_u_64(self.packetsReceived, serializer);
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_u_32(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_process_info(ProcessInfo self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_32(self.pid, serializer);
+    sse_encode_String(self.name, serializer);
+    sse_encode_f_64(self.cpuUsage, serializer);
+    sse_encode_u_64(self.memoryUsage, serializer);
+    sse_encode_opt_box_autoadd_u_32(self.parentPid, serializer);
+    sse_encode_String(self.status, serializer);
+    sse_encode_String(self.command, serializer);
+    sse_encode_u_64(self.startTime, serializer);
+  }
+
+  @protected
+  void sse_encode_system_info(SystemInfo self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.osName, serializer);
+    sse_encode_String(self.osVersion, serializer);
+    sse_encode_String(self.kernelVersion, serializer);
+    sse_encode_String(self.hostname, serializer);
+    sse_encode_String(self.cpuBrand, serializer);
+    sse_encode_u_32(self.cpuCores, serializer);
+    sse_encode_u_64(self.totalMemory, serializer);
+    sse_encode_u_64(self.bootTime, serializer);
+    sse_encode_u_64(self.uptime, serializer);
+  }
+
+  @protected
+  void sse_encode_system_resource_info(
+    SystemResourceInfo self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_f_64(self.cpuUsage, serializer);
+    sse_encode_list_prim_f_64_strict(self.cpuPerCore, serializer);
+    sse_encode_u_64(self.memoryTotal, serializer);
+    sse_encode_u_64(self.memoryUsed, serializer);
+    sse_encode_u_64(self.memoryAvailable, serializer);
+    sse_encode_u_64(self.swapTotal, serializer);
+    sse_encode_u_64(self.swapUsed, serializer);
+    sse_encode_u_64(self.swapFree, serializer);
+    sse_encode_list_disk_info(self.diskUsage, serializer);
+    sse_encode_network_info(self.networkUsage, serializer);
+  }
+
+  @protected
+  void sse_encode_u_32(int self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putUint32(self);
+  }
+
+  @protected
+  void sse_encode_u_64(BigInt self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putBigUint64(self);
   }
 
   @protected
@@ -232,11 +806,5 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   void sse_encode_i_32(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putInt32(self);
-  }
-
-  @protected
-  void sse_encode_bool(bool self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    serializer.buffer.putUint8(self ? 1 : 0);
   }
 }

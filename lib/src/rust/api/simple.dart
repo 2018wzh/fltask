@@ -6,5 +6,246 @@
 import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+
 String greet({required String name}) =>
     RustLib.instance.api.crateApiSimpleGreet(name: name);
+
+/// 获取当前 Rust crate 的版本号 (来自 Cargo.toml)。
+String getBackendVersion() =>
+    RustLib.instance.api.crateApiSimpleGetBackendVersion();
+
+/// Get list of all processes
+List<ProcessInfo> getProcesses() =>
+    RustLib.instance.api.crateApiSimpleGetProcesses();
+
+/// Get system resource usage
+SystemResourceInfo getSystemResources() =>
+    RustLib.instance.api.crateApiSimpleGetSystemResources();
+
+/// Get system information
+SystemInfo getSystemInfo() =>
+    RustLib.instance.api.crateApiSimpleGetSystemInfo();
+
+/// Kill a process by PID
+bool killProcess({required int pid}) =>
+    RustLib.instance.api.crateApiSimpleKillProcess(pid: pid);
+
+class DiskInfo {
+  final String name;
+  final String mountPoint;
+  final BigInt totalSpace;
+  final BigInt usedSpace;
+  final BigInt availableSpace;
+
+  const DiskInfo({
+    required this.name,
+    required this.mountPoint,
+    required this.totalSpace,
+    required this.usedSpace,
+    required this.availableSpace,
+  });
+
+  @override
+  int get hashCode =>
+      name.hashCode ^
+      mountPoint.hashCode ^
+      totalSpace.hashCode ^
+      usedSpace.hashCode ^
+      availableSpace.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DiskInfo &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          mountPoint == other.mountPoint &&
+          totalSpace == other.totalSpace &&
+          usedSpace == other.usedSpace &&
+          availableSpace == other.availableSpace;
+}
+
+class NetworkInfo {
+  final BigInt bytesSent;
+  final BigInt bytesReceived;
+  final BigInt packetsSent;
+  final BigInt packetsReceived;
+
+  const NetworkInfo({
+    required this.bytesSent,
+    required this.bytesReceived,
+    required this.packetsSent,
+    required this.packetsReceived,
+  });
+
+  @override
+  int get hashCode =>
+      bytesSent.hashCode ^
+      bytesReceived.hashCode ^
+      packetsSent.hashCode ^
+      packetsReceived.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NetworkInfo &&
+          runtimeType == other.runtimeType &&
+          bytesSent == other.bytesSent &&
+          bytesReceived == other.bytesReceived &&
+          packetsSent == other.packetsSent &&
+          packetsReceived == other.packetsReceived;
+}
+
+class ProcessInfo {
+  final int pid;
+  final String name;
+  final double cpuUsage;
+  final BigInt memoryUsage;
+  final int? parentPid;
+  final String status;
+  final String command;
+  final BigInt startTime;
+
+  const ProcessInfo({
+    required this.pid,
+    required this.name,
+    required this.cpuUsage,
+    required this.memoryUsage,
+    this.parentPid,
+    required this.status,
+    required this.command,
+    required this.startTime,
+  });
+
+  @override
+  int get hashCode =>
+      pid.hashCode ^
+      name.hashCode ^
+      cpuUsage.hashCode ^
+      memoryUsage.hashCode ^
+      parentPid.hashCode ^
+      status.hashCode ^
+      command.hashCode ^
+      startTime.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ProcessInfo &&
+          runtimeType == other.runtimeType &&
+          pid == other.pid &&
+          name == other.name &&
+          cpuUsage == other.cpuUsage &&
+          memoryUsage == other.memoryUsage &&
+          parentPid == other.parentPid &&
+          status == other.status &&
+          command == other.command &&
+          startTime == other.startTime;
+}
+
+class SystemInfo {
+  final String osName;
+  final String osVersion;
+  final String kernelVersion;
+  final String hostname;
+  final String cpuBrand;
+  final int cpuCores;
+  final BigInt totalMemory;
+  final BigInt bootTime;
+  final BigInt uptime;
+
+  const SystemInfo({
+    required this.osName,
+    required this.osVersion,
+    required this.kernelVersion,
+    required this.hostname,
+    required this.cpuBrand,
+    required this.cpuCores,
+    required this.totalMemory,
+    required this.bootTime,
+    required this.uptime,
+  });
+
+  @override
+  int get hashCode =>
+      osName.hashCode ^
+      osVersion.hashCode ^
+      kernelVersion.hashCode ^
+      hostname.hashCode ^
+      cpuBrand.hashCode ^
+      cpuCores.hashCode ^
+      totalMemory.hashCode ^
+      bootTime.hashCode ^
+      uptime.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SystemInfo &&
+          runtimeType == other.runtimeType &&
+          osName == other.osName &&
+          osVersion == other.osVersion &&
+          kernelVersion == other.kernelVersion &&
+          hostname == other.hostname &&
+          cpuBrand == other.cpuBrand &&
+          cpuCores == other.cpuCores &&
+          totalMemory == other.totalMemory &&
+          bootTime == other.bootTime &&
+          uptime == other.uptime;
+}
+
+class SystemResourceInfo {
+  final double cpuUsage;
+  final Float64List cpuPerCore;
+  final BigInt memoryTotal;
+  final BigInt memoryUsed;
+  final BigInt memoryAvailable;
+  final BigInt swapTotal;
+  final BigInt swapUsed;
+  final BigInt swapFree;
+  final List<DiskInfo> diskUsage;
+  final NetworkInfo networkUsage;
+
+  const SystemResourceInfo({
+    required this.cpuUsage,
+    required this.cpuPerCore,
+    required this.memoryTotal,
+    required this.memoryUsed,
+    required this.memoryAvailable,
+    required this.swapTotal,
+    required this.swapUsed,
+    required this.swapFree,
+    required this.diskUsage,
+    required this.networkUsage,
+  });
+
+  @override
+  int get hashCode =>
+      cpuUsage.hashCode ^
+      cpuPerCore.hashCode ^
+      memoryTotal.hashCode ^
+      memoryUsed.hashCode ^
+      memoryAvailable.hashCode ^
+      swapTotal.hashCode ^
+      swapUsed.hashCode ^
+      swapFree.hashCode ^
+      diskUsage.hashCode ^
+      networkUsage.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SystemResourceInfo &&
+          runtimeType == other.runtimeType &&
+          cpuUsage == other.cpuUsage &&
+          cpuPerCore == other.cpuPerCore &&
+          memoryTotal == other.memoryTotal &&
+          memoryUsed == other.memoryUsed &&
+          memoryAvailable == other.memoryAvailable &&
+          swapTotal == other.swapTotal &&
+          swapUsed == other.swapUsed &&
+          swapFree == other.swapFree &&
+          diskUsage == other.diskUsage &&
+          networkUsage == other.networkUsage;
+}

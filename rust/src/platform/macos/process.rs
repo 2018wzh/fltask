@@ -9,8 +9,10 @@ pub fn get_processes_impl() -> Vec<ProcessInfo> {
             // pidinfo requires (pid: i32, arg: u64). For TaskAllInfo the arg is 0.
             if let Ok(task_info) = proc_pid::pidinfo::<task_info::TaskAllInfo>(pid as i32, 0) {
                 let raw = &task_info.pbsd.pbi_name;
+                // pbi_name is an array of i8 (C chars). Convert safely to u8 slice up to first NUL.
                 let nul_pos = raw.iter().position(|c| *c == 0).unwrap_or(raw.len());
-                let name = String::from_utf8_lossy(&raw[..nul_pos]).to_string();
+                let bytes: Vec<u8> = raw[..nul_pos].iter().map(|&c| c as u8).collect();
+                let name = String::from_utf8_lossy(&bytes).to_string();
                 let memory_usage = task_info.ptinfo.pti_resident_size as u64;
                 processes.push(ProcessInfo {
                     pid: pid as u32,

@@ -21,6 +21,7 @@ class ChartsPage extends StatefulWidget {
 
 class _ChartsPageState extends State<ChartsPage> {
   Timer? _timer;
+  SystemInfo? _systemInfo;
   SystemResourceInfo? _systemResources;
   SystemResourceInfo? _previousSystemResources;
   final List<FlSpot> _cpuData = [];
@@ -47,15 +48,23 @@ class _ChartsPageState extends State<ChartsPage> {
   @override
   void initState() {
     super.initState();
-    // 初始化多核CPU数据
-    for (int i = 0; i < 8; i++) {
-      _cpuCoreData.add([]);
-    }
+    _initializeCpuData();
     _loadSystemResources();
     _timer = Timer.periodic(Duration(seconds: widget.refreshInterval), (timer) {
       _loadSystemResources();
     });
     widget.refreshNotifier?.addListener(_onRefresh);
+  }
+
+  void _initializeCpuData() {
+    final info = getSystemInfo();
+    setState(() {
+      _systemInfo = info;
+      _cpuCoreData.clear();
+      for (int i = 0; i < (info.cpuCores); i++) {
+        _cpuCoreData.add([]);
+      }
+    });
   }
 
   @override
@@ -316,6 +325,7 @@ class _ChartsPageState extends State<ChartsPage> {
                                 TextStyle(
                                   color: color,
                                   fontWeight: FontWeight.bold,
+                                  fontSize: 10,
                                 ),
                               );
                             }).toList();
@@ -362,7 +372,7 @@ class _ChartsPageState extends State<ChartsPage> {
           ),
           const SizedBox(height: 4),
           Text(
-            '${_cpuCoreData.length} 个逻辑核心',
+            '${_systemInfo?.cpuCores ?? 0} 个逻辑核心',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: Theme.of(
                 context,
@@ -436,6 +446,9 @@ class _ChartsPageState extends State<ChartsPage> {
                       lineTouchData: LineTouchData(
                         touchTooltipData: LineTouchTooltipData(
                           getTooltipItems: (touchedSpots) {
+                            touchedSpots.sort(
+                              (a, b) => a.barIndex.compareTo(b.barIndex),
+                            );
                             return touchedSpots.map((spot) {
                               final index = spot.barIndex;
                               final value = spot.y;
@@ -446,6 +459,7 @@ class _ChartsPageState extends State<ChartsPage> {
                                       _cpuCoreColors[index %
                                           _cpuCoreColors.length],
                                   fontWeight: FontWeight.bold,
+                                  fontSize: 10,
                                 ),
                               );
                             }).toList();

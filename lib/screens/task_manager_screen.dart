@@ -342,11 +342,12 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
           SafeArea(
             bottom: false,
             child: Container(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              // 减小顶部栏高度: 缩小上下内边距
+              padding: const EdgeInsets.fromLTRB(12, 4, 12, 0),
               child: Row(
                 children: [
-                  // 左侧占位，用于平衡右侧菜单按钮
-                  const SizedBox(width: 48),
+                  // 左侧占位，用于平衡右侧菜单按钮（减小宽度以节省空间）
+                  const SizedBox(width: 40),
                   // 居中的标签栏
                   Expanded(
                     child: Center(
@@ -359,8 +360,8 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(MdiIcons.memory, size: 18),
-                                  const SizedBox(width: 8),
+                                  Icon(MdiIcons.memory, size: 16),
+                                  const SizedBox(width: 6),
                                   const Text('进程'),
                                 ],
                               ),
@@ -369,8 +370,8 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(MdiIcons.chartLine, size: 18),
-                                  const SizedBox(width: 8),
+                                  Icon(MdiIcons.chartLine, size: 16),
+                                  const SizedBox(width: 6),
                                   const Text('图表'),
                                 ],
                               ),
@@ -379,8 +380,8 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(MdiIcons.information, size: 18),
-                                  const SizedBox(width: 8),
+                                  Icon(MdiIcons.information, size: 16),
+                                  const SizedBox(width: 6),
                                   const Text('信息'),
                                 ],
                               ),
@@ -388,9 +389,10 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
                           ],
                           indicatorSize: TabBarIndicatorSize.tab,
                           dividerColor: Colors.transparent,
+                          // 缩小标签内边距
                           labelPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
+                            horizontal: 12,
+                            vertical: 4,
                           ),
                         ),
                       ),

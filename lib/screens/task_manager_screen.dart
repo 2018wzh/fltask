@@ -22,6 +22,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
   bool _autoRefreshEnabled = true; // 自动刷新开关
   Timer? _refreshTimer;
   ThemeMode _themeMode = ThemeMode.system; // 主题模式
+  String _languageCode = 'zh'; // 语言代码，默认中文
 
   // 刷新通知器 - 每个页面一个
   final ValueNotifier<int> _processesRefreshNotifier = ValueNotifier<int>(0);
@@ -208,13 +209,11 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
                 ListTile(
                   leading: Icon(MdiIcons.translate),
                   title: const Text('语言'),
-                  subtitle: const Text('简体中文'),
+                  subtitle: Text(_getLanguageText(_languageCode)),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
-                    // TODO: 实现语言设置
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(const SnackBar(content: Text('语言设置功能待实现')));
+                    Navigator.pop(context);
+                    _showLanguageDialog();
                   },
                 ),
               ],
@@ -278,6 +277,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
       final themeIndex =
           prefs.getInt('themeMode') ?? 0; // 0: system, 1: light, 2: dark
       _themeMode = ThemeMode.values[themeIndex];
+      _languageCode = prefs.getString('languageCode') ?? 'zh';
     });
     _startRefreshTimer();
   }
@@ -287,6 +287,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
     await prefs.setInt('refreshInterval', _refreshInterval);
     await prefs.setBool('autoRefreshEnabled', _autoRefreshEnabled);
     await prefs.setInt('themeMode', _themeMode.index);
+    await prefs.setString('languageCode', _languageCode);
   }
 
   String _getThemeModeText(ThemeMode mode) {
@@ -298,6 +299,62 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
       case ThemeMode.dark:
         return '深色主题';
     }
+  }
+
+  String _getLanguageText(String code) {
+    switch (code) {
+      case 'zh':
+        return '简体中文';
+      case 'en':
+        return 'English';
+      default:
+        return '简体中文';
+    }
+  }
+
+  void _showLanguageDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('语言设置'),
+        content: RadioGroup<String>(
+          groupValue: _languageCode,
+          onChanged: (value) {
+            setState(() {
+              _languageCode = value!;
+            });
+            _saveSettings();
+            Navigator.pop(context);
+            // 显示重启提示
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('语言设置已保存，重启应用后生效'),
+                duration: Duration(seconds: 3),
+              ),
+            );
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('选择语言:'),
+              const SizedBox(height: 16),
+              ...['zh', 'en'].map(
+                (code) => RadioListTile<String>(
+                  title: Text(_getLanguageText(code)),
+                  value: code,
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

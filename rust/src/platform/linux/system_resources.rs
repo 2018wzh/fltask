@@ -24,12 +24,13 @@ pub fn get_system_resources_impl() -> SystemResourceInfo {
     let mem_used = if mem_total > mem_available { mem_total - mem_available } else { 0 };
     let swap_used = if swap_total > swap_free { swap_total - swap_free } else { 0 };
 
-    let cpu_usage = 0.0; // TODO: implement sampling based load (requires previous reading of /proc/stat)
+    let (cpu_usage, cpu_per_core) = read_cpu_usage();
     let disk_usage = get_disk_info();
     let network_usage = get_network_info();
 
     SystemResourceInfo {
         cpu_usage,
+        cpu_per_core,
         memory_total: mem_total,
         memory_used: mem_used,
         memory_available: mem_available,
@@ -39,6 +40,49 @@ pub fn get_system_resources_impl() -> SystemResourceInfo {
         disk_usage,
         network_usage,
     }
+}
+
+fn read_cpu_usage() -> (f64, Vec<f64>) {
+    // Note: True CPU percentage needs delta over time. Here we parse current jiffies and return ratios of busy/total.
+    if let Ok(stat) = fs::read_to_string("/proc/stat") {
+        let mut per_core = Vec::new();
+        let mut total_busy: u64 = 0;
+        let mut total_all: u64 = 0;
+        for line in stat.lines() {
+            if line.starts_with("cpu") {
+                let parts: Vec<&str> = line.split_whitespace().collect();
+                if parts[0] == "cpu" { // aggregate
+                    if parts.len() >= 8 {
+                        let user: u64 = parts[1].parse().unwrap_or(0);
+                        let nice: u64 = parts[2].parse().unwrap_or(0);
+                        let system: u64 = parts[3].parse().unwrap_or(0);
+                        let idle: u64 = parts[4].parse().unwrap_or(0);
+                        let iowait: u64 = parts[5].parse().unwrap_or(0);
+                        let irq: u64 = parts[6].parse().unwrap_or(0);
+                        let softirq: u64 = parts[7].parse().unwrap_or(0);
+                        let busy = user + nice + system + irq + softirq;
+                        total_busy = busy;
+                        total_all = busy + idle + iowait;
+                    }
+                } else { // per core
+                    if parts.len() >= 8 {
+                        let user: u64 = parts[1].parse().unwrap_or(0);
+                        let nice: u64 = parts[2].parse().unwrap_or(0);
+                        let system: u64 = parts[3].parse().unwrap_or(0);
+                        let idle: u64 = parts[4].parse().unwrap_or(0);
+                        let iowait: u64 = parts[5].parse().unwrap_or(0);
+                        let irq: u64 = parts[6].parse().unwrap_or(0);
+                        let softirq: u64 = parts[7].parse().unwrap_or(0);
+                        let busy = user + nice + system + irq + softirq;
+                        let all = busy + idle + iowait;
+                        if all > 0 { per_core.push((busy as f64 / all as f64) * 100.0); }
+                    }
+                }
+            }
+        }
+        if total_all > 0 { return ((total_busy as f64 / total_all as f64) * 100.0, per_core); }
+    }
+    (0.0, Vec::new())
 }
 
 fn get_disk_info() -> Vec<DiskInfo> {

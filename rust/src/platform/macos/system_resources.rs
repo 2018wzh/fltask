@@ -31,7 +31,8 @@ pub fn get_system_resources_impl() -> SystemResourceInfo {
     let disk_usage = get_disk_info();
     let network_usage = get_network_info();
 
-    SystemResourceInfo { cpu_usage, memory_total: total_memory, memory_used: used_memory, memory_available: free_memory, swap_total, swap_used, swap_free, disk_usage, network_usage }
+    let cpu_per_core = get_per_core_load();
+    SystemResourceInfo { cpu_usage, cpu_per_core, memory_total: total_memory, memory_used: used_memory, memory_available: free_memory, swap_total, swap_used, swap_free, disk_usage, network_usage }
 }
 
 fn get_cpu_usage() -> f64 {
@@ -68,4 +69,45 @@ fn get_network_info() -> NetworkInfo {
         }
     }
     network_info
+}
+
+// 获取每核心使用率 (瞬时快照 busy/(busy+idle))
+fn get_per_core_load() -> Vec<f64> {
+    use libc::{c_int, c_uint, c_void, mach_port_t, natural_t, kern_return_t};
+    const KERN_SUCCESS: kern_return_t = 0;
+    #[repr(C)]
+    struct ProcessorCpuLoadInfo { user: u32, system: u32, idle: u32, nice: u32 }
+    extern "C" {
+        fn mach_host_self() -> mach_port_t;
+        fn host_processor_info(host: mach_port_t, flavor: c_int, out_cpu_count: *mut c_uint, out_cpu_info: *mut *mut natural_t, out_cpu_info_count: *mut c_uint) -> kern_return_t;
+        fn vm_deallocate(target_task: mach_port_t, address: usize, size: usize) -> kern_return_t;
+    }
+    const PROCESSOR_CPU_LOAD_INFO: c_int = 2;
+
+    unsafe {
+        let host = mach_host_self();
+        let mut cpu_count: c_uint = 0;
+        let mut cpu_info: *mut natural_t = std::ptr::null_mut();
+        let mut info_count: c_uint = 0;
+        if host_processor_info(host, PROCESSOR_CPU_LOAD_INFO, &mut cpu_count, &mut cpu_info, &mut info_count) != KERN_SUCCESS { return Vec::new(); }
+        if cpu_info.is_null() || cpu_count == 0 { return Vec::new(); }
+        let stride = std::mem::size_of::<ProcessorCpuLoadInfo>() / std::mem::size_of::<natural_t>();
+        let slice = std::slice::from_raw_parts(cpu_info, info_count as usize);
+        let mut loads = Vec::with_capacity(cpu_count as usize);
+        for i in 0..cpu_count as usize {
+            let base = i * stride;
+            if base + 3 < slice.len() {
+                let user = slice[base] as u64;
+                let system = slice[base + 1] as u64;
+                let idle = slice[base + 2] as u64;
+                let nice = slice[base + 3] as u64;
+                let busy = user + system + nice;
+                let total = busy + idle;
+                if total > 0 { loads.push((busy as f64 / total as f64) * 100.0); }
+            }
+        }
+        // 释放分配的内存
+        let _ = vm_deallocate(mach_host_self(), cpu_info as usize, (info_count as usize * std::mem::size_of::<natural_t>()) as usize);
+        loads
+    }
 }

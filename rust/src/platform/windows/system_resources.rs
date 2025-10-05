@@ -5,6 +5,8 @@ use windows::core::PCWSTR;
 use windows::Win32::Storage::FileSystem::*;
 use windows::Win32::System::SystemInformation::*;
 use windows::Win32::NetworkManagement::IpHelper::{FreeMibTable, GetIfTable2, MIB_IF_TABLE2};
+use windows::Win32::System::SystemInformation::{GetSystemTimes};
+use windows::Win32::Foundation::FILETIME;
 use windows::Win32::NetworkManagement::Ndis::IF_OPER_STATUS;
 
 /// Windows实现：获取系统资源信息
@@ -31,8 +33,10 @@ pub fn get_system_resources_impl() -> SystemResourceInfo {
         let swap_used: u64 = if mem_status.ullTotalPageFile > mem_status.ullAvailPageFile { mem_status.ullTotalPageFile - mem_status.ullAvailPageFile } else { 0 };
         let swap_free: u64 = mem_status.ullAvailPageFile;
 
+        let cpu_per_core = get_per_core_usage();
         SystemResourceInfo {
             cpu_usage,
+            cpu_per_core,
             memory_total: mem_status.ullTotalPhys,
             memory_used: mem_status.ullTotalPhys - mem_status.ullAvailPhys,
             memory_available: mem_status.ullAvailPhys,
@@ -123,4 +127,10 @@ fn get_network_info() -> NetworkInfo {
     }
 
     network_info
+}
+
+// 当前简化：返回空向量（需要 PDH 或 NtQuerySystemInformation(SystemProcessorPerformanceInformation) 获取每核心数据）
+fn get_per_core_usage() -> Vec<f64> {
+    // Placeholder for future detailed implementation.
+    Vec::new()
 }

@@ -42,6 +42,7 @@ pub struct ProcessInfo {
 #[derive(Debug, Clone)]
 pub struct SystemResourceInfo {
     pub cpu_usage: f64,
+    pub cpu_per_core: Vec<f64>,
     pub memory_total: u64,
     pub memory_used: u64,
     pub memory_available: u64,

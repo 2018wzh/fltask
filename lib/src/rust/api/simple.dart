@@ -11,6 +11,10 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 String greet({required String name}) =>
     RustLib.instance.api.crateApiSimpleGreet(name: name);
 
+/// 获取当前 Rust crate 的版本号 (来自 Cargo.toml)。
+String getBackendVersion() =>
+    RustLib.instance.api.crateApiSimpleGetBackendVersion();
+
 /// Get list of all processes
 List<ProcessInfo> getProcesses() =>
     RustLib.instance.api.crateApiSimpleGetProcesses();

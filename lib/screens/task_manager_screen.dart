@@ -3,6 +3,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'processes_page.dart';
+import 'package:fltask/src/rust/api/simple.dart';
 import 'charts_page.dart';
 import 'system_info_page.dart';
 
@@ -23,6 +24,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
   Timer? _refreshTimer;
   ThemeMode _themeMode = ThemeMode.system; // 主题模式
   bool _networkUnitIsBps = false; // 网络单位是否为bps
+  String? _backendVersion; // Rust 后端版本
 
   // 刷新通知器 - 每个页面一个
   final ValueNotifier<int> _processesRefreshNotifier = ValueNotifier<int>(0);
@@ -35,6 +37,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
     _tabController = TabController(length: 3, vsync: this);
     _loadSettings();
     _startRefreshTimer();
+    _loadBackendVersion();
   }
 
   @override
@@ -117,7 +120,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
     showAboutDialog(
       context: context,
       applicationName: '任务管理器',
-      applicationVersion: '1.0.0',
+      applicationVersion: _composeAppVersion(),
       applicationIcon: Icon(
         MdiIcons.monitor,
         size: 48,
@@ -131,6 +134,11 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
         const Text('• 实时系统资源图表'),
         const Text('• 详细的系统信息'),
         const SizedBox(height: 16),
+        if (_backendVersion != null)
+          Text(
+            '版本: $_backendVersion',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
         Text('© 2025 2018wzh', style: Theme.of(context).textTheme.bodySmall),
       ],
     );
@@ -305,6 +313,23 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
       case ThemeMode.dark:
         return '深色主题';
     }
+  }
+
+  Future<void> _loadBackendVersion() async {
+    try {
+      final v = await getBackendVersion();
+      if (mounted) {
+        setState(() => _backendVersion = v);
+      }
+    } catch (e) {
+      // 忽略错误或可记录日志
+    }
+  }
+
+  String _composeAppVersion() {
+    // 未来可从 pubspec 读取; 这里先固定主应用版本
+    if (_backendVersion == null) return '1.0.0';
+    return '1.0.0 (Rust $_backendVersion)';
   }
 
   @override

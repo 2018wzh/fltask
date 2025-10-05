@@ -81,12 +81,12 @@ class _ProcessTreeItemState extends State<ProcessTreeItem> {
                             _isExpanded
                                 ? Icons.keyboard_arrow_down
                                 : Icons.keyboard_arrow_right,
-                            color: colorScheme.onSurface.withOpacity(0.6),
+                            color: colorScheme.onSurface.withValues(alpha: 0.6),
                           )
                         : Icon(
                             MdiIcons.circle,
                             size: 8,
-                            color: colorScheme.onSurface.withOpacity(0.3),
+                            color: colorScheme.onSurface.withValues(alpha: 0.3),
                           ),
                   ),
 
@@ -121,7 +121,9 @@ class _ProcessTreeItemState extends State<ProcessTreeItem> {
                             Text(
                               'PID: ${widget.process.pid}',
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurface.withOpacity(0.6),
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.6,
+                                ),
                               ),
                             ),
                           ],
@@ -155,13 +157,17 @@ class _ProcessTreeItemState extends State<ProcessTreeItem> {
                             Icon(
                               MdiIcons.memory,
                               size: 12,
-                              color: colorScheme.onSurface.withOpacity(0.6),
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.6,
+                              ),
                             ),
                             const SizedBox(width: 4),
                             Text(
                               _formatBytes(widget.process.memoryUsage),
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurface.withOpacity(0.6),
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.6,
+                                ),
                               ),
                             ),
 
@@ -175,8 +181,8 @@ class _ProcessTreeItemState extends State<ProcessTreeItem> {
                               ),
                               decoration: BoxDecoration(
                                 color: widget.process.status == 'Running'
-                                    ? Colors.green.withOpacity(0.2)
-                                    : Colors.grey.withOpacity(0.2),
+                                    ? Colors.green.withValues(alpha: 0.2)
+                                    : Colors.grey.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(

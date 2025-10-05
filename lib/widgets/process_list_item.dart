@@ -79,7 +79,7 @@ class ProcessListItem extends StatelessWidget {
                   Text(
                     'PID: ${process.pid}',
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurface.withOpacity(0.6),
+                      color: colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                   IconButton(
@@ -149,8 +149,8 @@ class ProcessListItem extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: process.status == 'Running'
-                          ? Colors.green.withOpacity(0.2)
-                          : Colors.grey.withOpacity(0.2),
+                          ? Colors.green.withValues(alpha: 0.2)
+                          : Colors.grey.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -172,7 +172,7 @@ class ProcessListItem extends StatelessWidget {
               Text(
                 process.command,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurface.withOpacity(0.6),
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
                   fontFamily: 'monospace',
                 ),
                 overflow: TextOverflow.ellipsis,

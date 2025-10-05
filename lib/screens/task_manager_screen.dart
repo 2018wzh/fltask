@@ -34,25 +34,27 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('自动刷新设置'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('选择自动刷新时间间隔:'),
-            const SizedBox(height: 16),
-            ...([1, 2, 5, 10, 30].map(
-              (seconds) => RadioListTile<int>(
-                title: Text('${seconds}秒'),
-                value: seconds,
-                groupValue: _refreshInterval,
-                onChanged: (value) {
-                  setState(() {
-                    _refreshInterval = value!;
-                  });
-                  Navigator.pop(context);
-                },
-              ),
-            )),
-          ],
+        content: RadioGroup<int>(
+          groupValue: _refreshInterval,
+          onChanged: (value) {
+            setState(() {
+              _refreshInterval = value!;
+            });
+            Navigator.pop(context);
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('选择自动刷新时间间隔:'),
+              const SizedBox(height: 16),
+              ...([1, 2, 5, 10, 30].map(
+                (seconds) => RadioListTile<int>(
+                  title: Text('${seconds}秒'),
+                  value: seconds,
+                ),
+              )),
+            ],
+          ),
         ),
         actions: [
           TextButton(

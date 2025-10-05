@@ -121,7 +121,9 @@ class _SystemInfoPageState extends State<SystemInfoPage> {
             Icon(
               icon,
               size: 16,
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
             const SizedBox(width: 8),
           ],
@@ -275,7 +277,7 @@ class _SystemInfoPageState extends State<SystemInfoPage> {
                             size: 16,
                             color: Theme.of(
                               context,
-                            ).colorScheme.onSurface.withOpacity(0.6),
+                            ).colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
                           const SizedBox(width: 8),
                           Expanded(

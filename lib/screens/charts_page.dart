@@ -142,7 +142,7 @@ class _ChartsPageState extends State<ChartsPage> {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
         ),
         borderRadius: BorderRadius.circular(8),
       ),
@@ -160,7 +160,9 @@ class _ChartsPageState extends State<ChartsPage> {
             Text(
               subtitle,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
           ],
@@ -177,7 +179,7 @@ class _ChartsPageState extends State<ChartsPage> {
                           return FlLine(
                             color: Theme.of(
                               context,
-                            ).colorScheme.outline.withOpacity(0.1),
+                            ).colorScheme.outline.withValues(alpha: 0.1),
                             strokeWidth: 1,
                           );
                         },
@@ -196,9 +198,8 @@ class _ChartsPageState extends State<ChartsPage> {
                                 '${value.toInt()}$yAxisSuffix',
                                 style: TextStyle(
                                   fontSize: 11,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface.withOpacity(0.6),
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.6),
                                 ),
                               );
                             },
@@ -225,7 +226,7 @@ class _ChartsPageState extends State<ChartsPage> {
                           dotData: const FlDotData(show: false),
                           belowBarData: BarAreaData(
                             show: true,
-                            color: color.withOpacity(0.3),
+                            color: color.withValues(alpha: 0.3),
                           ),
                         ),
                       ],
@@ -237,7 +238,7 @@ class _ChartsPageState extends State<ChartsPage> {
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(
                           context,
-                        ).colorScheme.onSurface.withOpacity(0.6),
+                        ).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                   ),
@@ -254,7 +255,7 @@ class _ChartsPageState extends State<ChartsPage> {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
         ),
         borderRadius: BorderRadius.circular(8),
       ),
@@ -271,7 +272,9 @@ class _ChartsPageState extends State<ChartsPage> {
           Text(
             '${_cpuCoreData.length} 个逻辑核心',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.7),
             ),
           ),
           const SizedBox(height: 16),
@@ -287,7 +290,7 @@ class _ChartsPageState extends State<ChartsPage> {
                           return FlLine(
                             color: Theme.of(
                               context,
-                            ).colorScheme.outline.withOpacity(0.1),
+                            ).colorScheme.outline.withValues(alpha: 0.1),
                             strokeWidth: 1,
                           );
                         },
@@ -306,9 +309,8 @@ class _ChartsPageState extends State<ChartsPage> {
                                 '${value.toInt()}%',
                                 style: TextStyle(
                                   fontSize: 11,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface.withOpacity(0.6),
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.6),
                                 ),
                               );
                             },
@@ -347,7 +349,7 @@ class _ChartsPageState extends State<ChartsPage> {
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(
                           context,
-                        ).colorScheme.onSurface.withOpacity(0.6),
+                        ).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                   ),
@@ -438,7 +440,9 @@ class _ChartsPageState extends State<ChartsPage> {
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outline.withValues(alpha: 0.2),
                 ),
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -477,7 +481,7 @@ class _ChartsPageState extends State<ChartsPage> {
                                   value: usagePercentage / 100,
                                   backgroundColor: Theme.of(
                                     context,
-                                  ).colorScheme.surfaceVariant,
+                                  ).colorScheme.surfaceContainerHighest,
                                   valueColor: AlwaysStoppedAnimation<Color>(
                                     usagePercentage > 90
                                         ? const Color(0xFFE74C3C)
@@ -494,7 +498,7 @@ class _ChartsPageState extends State<ChartsPage> {
                                         color: Theme.of(context)
                                             .colorScheme
                                             .onSurface
-                                            .withOpacity(0.7),
+                                            .withValues(alpha: 0.7),
                                       ),
                                 ),
                               ],

@@ -47,67 +47,6 @@
 - **Flutter Rust Bridge** 实现无缝数据交互
 - **预留接口结构** 支持未来扩展
 
-### 数据结构
-```rust
-// 进程信息
-struct ProcessInfo {
-    pid: u32,
-    name: String,
-    cpu_usage: f64,
-    memory_usage: u64,
-    parent_pid: Option<u32>,
-    status: String,
-    command: String,
-    start_time: u64,
-}
-
-// 系统资源信息
-struct SystemResourceInfo {
-    cpu_usage: f64,
-    memory_total: u64,
-    memory_used: u64,
-    memory_available: u64,
-    disk_usage: Vec<DiskInfo>,
-    network_usage: NetworkInfo,
-}
-
-// 系统信息
-struct SystemInfo {
-    os_name: String,
-    os_version: String,
-    kernel_version: String,
-    hostname: String,
-    cpu_brand: String,
-    cpu_cores: u32,
-    total_memory: u64,
-    boot_time: u64,
-    uptime: u64,
-}
-```
-
-## 项目结构
-
-```
-lib/
-├── main.dart                    # 应用入口
-├── screens/                     # 页面文件
-│   ├── task_manager_screen.dart # 主界面 (包含标签页)
-│   ├── processes_page.dart      # 进程页面
-│   ├── charts_page.dart         # 图表页面
-│   └── system_info_page.dart    # 系统信息页面
-├── widgets/                     # 自定义组件
-│   ├── process_list_item.dart   # 进程列表项
-│   └── process_tree_item.dart   # 进程树节点
-└── src/rust/                    # Rust 桥接代码 (自动生成)
-    └── api/
-        └── simple.dart          # API 接口
-
-rust/
-└── src/
-    └── api/
-        └── simple.rs            # Rust 实现
-```
-
 ## 安装和运行
 
 ### 前置要求
@@ -134,51 +73,15 @@ flutter run
 - ✅ Windows
 - ✅ macOS  
 - ✅ Linux
-- ✅ Web
-- ✅ iOS (需要额外配置)
-- ✅ Android (需要额外配置)
-
-## 主要依赖
-
-### Flutter 依赖
-- `flutter`: Flutter 核心框架
-- `provider`: 状态管理
-- `fl_chart`: 图表绘制
-- `material_design_icons_flutter`: Material Design 图标
-- `flutter_rust_bridge`: Rust 桥接
-
-### Rust 依赖
-- 待实现: 实际的系统监控库 (如 `sysinfo`)
-
-## 开发计划
-
-### 当前状态
-- ✅ 完整的 UI 界面设计
-- ✅ 基础的 Rust 接口结构
-- ✅ 模拟数据展示
-- ✅ 跨平台支持
-
-### 待实现功能
-- [ ] 实际的系统数据获取 (替换模拟数据)
-- [ ] 进程管理功能 (暂停、恢复等)
-- [ ] 性能历史记录
-- [ ] 系统服务管理
-- [ ] 启动项管理
-- [ ] 资源使用告警
-- [ ] 导出功能 (性能报告、进程列表等)
-
-## 界面预览
-
-应用包含以下主要界面：
-
-1. **进程管理界面**: 现代化的进程列表和树状视图
-2. **性能监控界面**: 实时图表显示系统资源使用情况
-3. **系统信息界面**: 详细的硬件和系统信息展示
 
 ## 贡献
 
 欢迎提交 Issue 和 Pull Request！
 
+## 作者
+
+2018wzh
+
 ## 许可证
 
-MIT License
+GNU General Public License v3.0 (GPL-3.0)

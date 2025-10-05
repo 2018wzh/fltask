@@ -76,7 +76,7 @@ jobs:
       - name: Flutter pub get
         run: flutter pub get
 
-      - name: Build Flutter (${% raw %}{{ matrix.build_target }}{% endraw %})
+      - name: Build Flutter app (debug)
         run: flutter build ${{ matrix.build_target }} --debug
 
       - name: List build outputs (debug)

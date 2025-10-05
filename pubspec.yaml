@@ -39,11 +39,11 @@ dependencies:
   flutter_rust_bridge: 2.11.1
   
   # UI and charting dependencies
-  fl_chart: ^0.68.0
+  fl_chart: ^1.1.1
   material_design_icons_flutter: ^7.0.7296
   
   # System integration
-  window_manager: ^0.3.9
+  window_manager: ^0.5.1
 
 dev_dependencies:
   flutter_test:
@@ -54,7 +54,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
   integration_test:
     sdk: flutter
 

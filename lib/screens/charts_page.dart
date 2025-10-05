@@ -91,12 +91,23 @@ class _ChartsPageState extends State<ChartsPage> {
           _cpuData.removeAt(0);
         }
 
-        // 模拟多核CPU数据
-        for (int i = 0; i < _cpuCoreData.length; i++) {
-          // 基于总CPU使用率，为每个核心生成不同的使用率
-          final coreUsage = resources.cpuUsage + (i * 5) % 30 - 15;
-          final clampedUsage = coreUsage.clamp(0, 100).toDouble();
-          _cpuCoreData[i].add(FlSpot(_timeIndex, clampedUsage));
+        // 真实多核 CPU 数据（来自 Rust cpuPerCore）
+        final perCore = resources.cpuPerCore;
+        // 如果核心数量发生变化，调整数据结构
+        if (perCore.length != _cpuCoreData.length) {
+          if (perCore.length > _cpuCoreData.length) {
+            // 添加新的核心列表
+            for (int i = _cpuCoreData.length; i < perCore.length; i++) {
+              _cpuCoreData.add([]);
+            }
+          } else {
+            // 缩减（极少发生）
+            _cpuCoreData.removeRange(perCore.length, _cpuCoreData.length);
+          }
+        }
+        for (int i = 0; i < perCore.length; i++) {
+          final usage = perCore[i].clamp(0, 100).toDouble();
+          _cpuCoreData[i].add(FlSpot(_timeIndex, usage));
           if (_cpuCoreData[i].length > _maxDataPoints) {
             _cpuCoreData[i].removeAt(0);
           }

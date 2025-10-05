@@ -1,6 +1,6 @@
 # fltask
 
-A new Flutter project.
+A Cross-platform task manager built with Flutter and Rust.
 
 ## Getting Started
 

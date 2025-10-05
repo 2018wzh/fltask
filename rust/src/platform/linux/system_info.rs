@@ -1,55 +1,58 @@
 use crate::api::simple::SystemInfo;
-use procfs::{CpuInfo, Meminfo, Uptime, Version};
-use std::fs;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-/// Linux implementation: Get system information
 pub fn get_system_info_impl() -> SystemInfo {
     let os_name = "Linux".to_string();
+    // OS version from /etc/os-release
+    let os_version = std::fs::read_to_string("/etc/os-release").ok().and_then(|data| {
+        let mut name = None; let mut version = None;
+        for line in data.lines() {
+            if line.starts_with("NAME=") { name = Some(line.trim_start_matches("NAME=").trim_matches('"').to_string()); }
+            if line.starts_with("VERSION=") { version = Some(line.trim_start_matches("VERSION=").trim_matches('"').to_string()); }
+        }
+        match (name, version) { (Some(n), Some(v)) => Some(format!("{} {}", n, v)), (Some(n), None) => Some(n), _ => None }
+    }).unwrap_or_else(|| "Unknown".to_string());
 
-    // Get OS version and kernel version
-    let (os_version, kernel_version) = get_linux_version();
+    let kernel_version = unsafe {
+        let mut uts: libc::utsname = std::mem::zeroed();
+        if libc::uname(&mut uts) == 0 {
+            let c_str = std::ffi::CStr::from_ptr(uts.release.as_ptr());
+            c_str.to_string_lossy().into_owned()
+        } else { "Unknown".to_string() }
+    };
 
-    // Get hostname
-    let hostname = fs::read_to_string("/proc/sys/kernel/hostname")
-        .unwrap_or_else(|_| "Unknown".to_string())
-        .trim()
-        .to_string();
+    let hostname = unsafe {
+        let mut uts: libc::utsname = std::mem::zeroed();
+        if libc::uname(&mut uts) == 0 {
+            let c_str = std::ffi::CStr::from_ptr(uts.nodename.as_ptr());
+            c_str.to_string_lossy().into_owned()
+        } else { "Unknown".to_string() }
+    };
 
-    // Get CPU info
-    let cpu_info = CpuInfo::new().unwrap();
-    let cpu_brand = cpu_info.model_name(0).unwrap_or("Unknown CPU").to_string();
-    let cpu_cores = cpu_info.num_cores() as u32;
+    let cpu_brand = std::fs::read_to_string("/proc/cpuinfo").ok().and_then(|d| {
+        d.lines().find(|l| l.starts_with("model name"))
+            .and_then(|l| l.split(':').nth(1))
+            .map(|s| s.trim().to_string())
+    }).unwrap_or_else(|| "Unknown CPU".to_string());
 
-    // Get memory info
-    let mem_info = Meminfo::new().unwrap();
-    let total_memory = mem_info.mem_total;
+    let cpu_cores = num_cpus::get() as u32;
 
-    // Get uptime and boot time
-    let uptime = Uptime::new().unwrap().uptime_f64() as u64;
-    let current_time = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap_or_default()
-        .as_secs();
-    let boot_time = current_time.saturating_sub(uptime);
+    let total_memory = std::fs::read_to_string("/proc/meminfo").ok().and_then(|meminfo| {
+        for line in meminfo.lines() {
+            if line.starts_with("MemTotal:") {
+                if let Some(kb) = line.split_whitespace().nth(1) { return Some(kb.parse::<u64>().unwrap_or(0) * 1024); }
+            }
+        }
+        None
+    }).unwrap_or(0);
 
-    SystemInfo {
-        os_name,
-        os_version,
-        kernel_version,
-        hostname,
-        cpu_brand,
-        cpu_cores,
-        total_memory,
-        boot_time,
-        uptime,
-    }
-}
+    let boot_time = std::fs::read_to_string("/proc/stat").ok().and_then(|d| {
+        d.lines().find(|l| l.starts_with("btime "))
+            .and_then(|l| l.split_whitespace().nth(1))
+            .and_then(|s| s.parse::<u64>().ok())
+    }).unwrap_or(0);
 
-/// Get Linux version information
-fn get_linux_version() -> (String, String) {
-    let version = Version::new().unwrap();
-    let os_release = version.osrelease;
-    let kernel_version = version.version;
-    (os_release, kernel_version)
+    let uptime = SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_secs().saturating_sub(boot_time);
+
+    SystemInfo { os_name, os_version, kernel_version, hostname, cpu_brand, cpu_cores, total_memory, boot_time, uptime }
 }

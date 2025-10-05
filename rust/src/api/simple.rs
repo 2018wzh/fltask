@@ -14,11 +14,6 @@ use crate::platform::macos::{
     get_processes_impl, get_system_resources_impl, get_system_info_impl, kill_process_impl
 };
 
-#[cfg(not(any(target_os = "windows", target_os = "linux", target_os = "macos")))]
-use crate::platform::default::{
-    get_processes_impl, get_system_resources_impl, get_system_info_impl, kill_process_impl
-};
-
 #[flutter_rust_bridge::frb(sync)] // Synchronous mode for simplicity of the demo
 pub fn greet(name: String) -> String {
     format!("Hello, {name}!")

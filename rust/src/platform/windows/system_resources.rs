@@ -1,8 +1,12 @@
 use crate::api::simple::{DiskInfo, NetworkInfo, SystemResourceInfo};
 use std::mem;
+use std::ptr;
 
 use windows::core::PCWSTR;
-use windows::{Win32::Storage::FileSystem::*, Win32::System::SystemInformation::*};
+use windows::Win32::Storage::FileSystem::*;
+use windows::Win32::System::SystemInformation::*;
+use windows::Win32::NetworkManagement::IpHelper::*;
+use windows::Win32::Foundation::*;
 
 /// Windows实现：获取系统资源信息
 pub fn get_system_resources_impl() -> SystemResourceInfo {
@@ -86,11 +90,55 @@ fn get_disk_info() -> Vec<DiskInfo> {
 
 /// 获取网络信息
 fn get_network_info() -> NetworkInfo {
-    // 简化实现，实际需要使用GetIfTable等API
-    NetworkInfo {
-        bytes_sent: 1024 * 1024 * 100,     // 100MB
-        bytes_received: 1024 * 1024 * 500, // 500MB
-        packets_sent: 50000,
-        packets_received: 250000,
+    unsafe {
+        let mut network_info = NetworkInfo {
+            bytes_sent: 0,
+            bytes_received: 0,
+            packets_sent: 0,
+            packets_received: 0,
+        };
+
+        // 获取网络接口表
+        let mut table: *mut MIB_IFTABLE = ptr::null_mut();
+        let mut size = 0u32;
+
+        // 第一次调用获取需要的缓冲区大小
+        let result = GetIfTable(
+            Some(table),
+            &mut size,
+            false,
+        );
+
+        if result == ERROR_INSUFFICIENT_BUFFER.0 {
+            // 分配缓冲区
+            let layout = std::alloc::Layout::from_size_align(size as usize, std::mem::align_of::<MIB_IFTABLE>()).unwrap();
+            table = std::alloc::alloc(layout) as *mut MIB_IFTABLE;
+
+            // 第二次调用获取实际数据
+            if GetIfTable(Some(table), &mut size, false) == NO_ERROR.0 {
+                let if_table = &*table;
+                let num_entries = if_table.dwNumEntries as usize;
+
+                // 遍历所有网络接口
+                for i in 0..num_entries {
+                    let row = if_table.table.get_unchecked(i);
+
+                    // 只统计活动的网络接口 (Up状态)
+                    if row.dwOperStatus == INTERNAL_IF_OPER_STATUS(1) { // IF_OPER_STATUS_UP
+                        network_info.bytes_sent += row.dwOutOctets as u64;
+                        network_info.bytes_received += row.dwInOctets as u64;
+                        network_info.packets_sent += row.dwOutUcastPkts as u64 + row.dwOutNUcastPkts as u64;
+                        network_info.packets_received += row.dwInUcastPkts as u64 + row.dwInNUcastPkts as u64;
+                    }
+                }
+            }
+
+            // 释放缓冲区
+            if !table.is_null() {
+                std::alloc::dealloc(table as *mut u8, layout);
+            }
+        }
+
+        network_info
     }
 }

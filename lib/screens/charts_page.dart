@@ -5,8 +5,15 @@ import '../src/rust/api/simple.dart';
 
 class ChartsPage extends StatefulWidget {
   final ValueNotifier<int>? refreshNotifier;
+  final bool networkUnitIsBps;
+  final int refreshInterval;
 
-  const ChartsPage({super.key, this.refreshNotifier});
+  const ChartsPage({
+    super.key,
+    this.refreshNotifier,
+    this.networkUnitIsBps = false,
+    this.refreshInterval = 1,
+  });
 
   @override
   State<ChartsPage> createState() => _ChartsPageState();
@@ -15,6 +22,7 @@ class ChartsPage extends StatefulWidget {
 class _ChartsPageState extends State<ChartsPage> {
   Timer? _timer;
   SystemResourceInfo? _systemResources;
+  SystemResourceInfo? _previousSystemResources;
   final List<FlSpot> _cpuData = [];
   final List<FlSpot> _memoryData = [];
   final List<FlSpot> _swapData = [];
@@ -44,7 +52,7 @@ class _ChartsPageState extends State<ChartsPage> {
       _cpuCoreData.add([]);
     }
     _loadSystemResources();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(Duration(seconds: widget.refreshInterval), (timer) {
       _loadSystemResources();
     });
     widget.refreshNotifier?.addListener(_onRefresh);
@@ -102,21 +110,34 @@ class _ChartsPageState extends State<ChartsPage> {
           _swapData.removeAt(0);
         }
 
-        // 添加网络数据点（模拟实时速度）
-        final receiveSpeed =
-            resources.networkUsage.bytesReceived.toDouble() /
-            1024 /
-            1024; // MB/s
-        final sendSpeed =
-            resources.networkUsage.bytesSent.toDouble() / 1024 / 1024; // MB/s
-        _networkReceiveData.add(FlSpot(_timeIndex, receiveSpeed % 10));
-        _networkSendData.add(FlSpot(_timeIndex, sendSpeed % 5));
+        // 计算网络速度
+        double receiveSpeed = 0;
+        double sendSpeed = 0;
+        if (_previousSystemResources != null) {
+          final interval = widget.refreshInterval.toDouble();
+          receiveSpeed =
+              (resources.networkUsage.bytesReceived -
+                      _previousSystemResources!.networkUsage.bytesReceived)
+                  .toDouble() /
+              interval;
+          sendSpeed =
+              (resources.networkUsage.bytesSent -
+                      _previousSystemResources!.networkUsage.bytesSent)
+                  .toDouble() /
+              interval;
+        }
+
+        _networkReceiveData.add(FlSpot(_timeIndex, receiveSpeed));
+        _networkSendData.add(FlSpot(_timeIndex, sendSpeed));
+
         if (_networkReceiveData.length > _maxDataPoints) {
           _networkReceiveData.removeAt(0);
         }
         if (_networkSendData.length > _maxDataPoints) {
           _networkSendData.removeAt(0);
         }
+
+        _previousSystemResources = resources;
       });
     } catch (e) {
       debugPrint('加载系统资源失败: $e');
@@ -136,6 +157,29 @@ class _ChartsPageState extends State<ChartsPage> {
     return '${value.toStringAsFixed(1)} ${suffixes[suffixIndex]}';
   }
 
+  String _formatSpeed(double bytesPerSecond) {
+    if (widget.networkUnitIsBps) {
+      final bitsPerSecond = bytesPerSecond * 8;
+      const suffixes = ['bps', 'Kbps', 'Mbps', 'Gbps', 'Tbps'];
+      var value = bitsPerSecond;
+      var suffixIndex = 0;
+      while (value >= 1000 && suffixIndex < suffixes.length - 1) {
+        value /= 1000;
+        suffixIndex++;
+      }
+      return '${value.toStringAsFixed(1)} ${suffixes[suffixIndex]}';
+    } else {
+      const suffixes = ['B/s', 'KB/s', 'MB/s', 'GB/s', 'TB/s'];
+      var value = bytesPerSecond;
+      var suffixIndex = 0;
+      while (value >= 1024 && suffixIndex < suffixes.length - 1) {
+        value /= 1024;
+        suffixIndex++;
+      }
+      return '${value.toStringAsFixed(1)} ${suffixes[suffixIndex]}';
+    }
+  }
+
   Widget _buildGnomeStyleChart({
     required String title,
     required Color color,
@@ -143,6 +187,8 @@ class _ChartsPageState extends State<ChartsPage> {
     String? subtitle,
     double maxY = 100,
     String yAxisSuffix = '%',
+    String Function(double)? yAxisFormatter,
+    String? yAxisLabel,
   }) {
     return Container(
       height: 200,
@@ -199,11 +245,30 @@ class _ChartsPageState extends State<ChartsPage> {
                         leftTitles: AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,
-                            reservedSize: 40,
+                            reservedSize: 45,
                             interval: maxY / 4,
                             getTitlesWidget: (value, meta) {
+                              if (meta.axisPosition == 0 &&
+                                  yAxisLabel != null) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(left: 8.0),
+                                  child: Text(
+                                    yAxisLabel,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.6),
+                                    ),
+                                  ),
+                                );
+                              }
+                              final text = yAxisFormatter != null
+                                  ? yAxisFormatter(value)
+                                  : '${value.toInt()}$yAxisSuffix';
                               return Text(
-                                '${value.toInt()}$yAxisSuffix',
+                                text,
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: Theme.of(context).colorScheme.onSurface
@@ -243,8 +308,11 @@ class _ChartsPageState extends State<ChartsPage> {
                           getTooltipItems: (touchedSpots) {
                             return touchedSpots.map((spot) {
                               final value = spot.y;
+                              final formattedValue = yAxisFormatter != null
+                                  ? _formatSpeed(value)
+                                  : '${value.toStringAsFixed(2)}$yAxisSuffix';
                               return LineTooltipItem(
-                                '${value.toStringAsFixed(2)}$yAxisSuffix',
+                                formattedValue,
                                 TextStyle(
                                   color: color,
                                   fontWeight: FontWeight.bold,
@@ -458,9 +526,27 @@ class _ChartsPageState extends State<ChartsPage> {
                   title: '网络接收',
                   color: const Color(0xFF2ECC71),
                   data: _networkReceiveData,
-                  subtitle: 'KB/s',
-                  maxY: 20,
+                  subtitle: _networkReceiveData.isNotEmpty
+                      ? _formatSpeed(_networkReceiveData.last.y)
+                      : '0.0 B/s',
+                  maxY: _networkReceiveData.isEmpty
+                      ? 1024
+                      : (_networkReceiveData
+                                    .map((e) => e.y)
+                                    .reduce((a, b) => a > b ? a : b) *
+                                1.2)
+                            .clamp(1024, double.infinity),
                   yAxisSuffix: '',
+                  yAxisFormatter: (value) => _formatSpeed(value).split(' ')[0],
+                  yAxisLabel: _formatSpeed(
+                    _networkReceiveData.isEmpty
+                        ? 1024
+                        : (_networkReceiveData
+                                      .map((e) => e.y)
+                                      .reduce((a, b) => a > b ? a : b) *
+                                  1.2)
+                              .clamp(1024, double.infinity),
+                  ).split(' ')[1],
                 ),
               ),
               const SizedBox(width: 16),
@@ -469,9 +555,27 @@ class _ChartsPageState extends State<ChartsPage> {
                   title: '网络发送',
                   color: const Color(0xFFE74C3C),
                   data: _networkSendData,
-                  subtitle: 'KB/s',
-                  maxY: 10,
+                  subtitle: _networkSendData.isNotEmpty
+                      ? _formatSpeed(_networkSendData.last.y)
+                      : '0.0 B/s',
+                  maxY: _networkSendData.isEmpty
+                      ? 1024
+                      : (_networkSendData
+                                    .map((e) => e.y)
+                                    .reduce((a, b) => a > b ? a : b) *
+                                1.2)
+                            .clamp(1024, double.infinity),
                   yAxisSuffix: '',
+                  yAxisFormatter: (value) => _formatSpeed(value).split(' ')[0],
+                  yAxisLabel: _formatSpeed(
+                    _networkSendData.isEmpty
+                        ? 1024
+                        : (_networkSendData
+                                      .map((e) => e.y)
+                                      .reduce((a, b) => a > b ? a : b) *
+                                  1.2)
+                              .clamp(1024, double.infinity),
+                  ).split(' ')[1],
                 ),
               ),
             ],

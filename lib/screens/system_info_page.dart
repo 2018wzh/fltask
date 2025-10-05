@@ -4,8 +4,13 @@ import '../src/rust/api/simple.dart';
 
 class SystemInfoPage extends StatefulWidget {
   final ValueNotifier<int>? refreshNotifier;
+  final bool networkUnitIsBps;
 
-  const SystemInfoPage({super.key, this.refreshNotifier});
+  const SystemInfoPage({
+    super.key,
+    this.refreshNotifier,
+    this.networkUnitIsBps = false,
+  });
 
   @override
   State<SystemInfoPage> createState() => _SystemInfoPageState();
@@ -62,7 +67,19 @@ class _SystemInfoPageState extends State<SystemInfoPage> {
     _loadSystemInfo();
   }
 
-  String _formatBytes(BigInt bytes) {
+  String _formatBytes(BigInt bytes, {bool isRate = false}) {
+    if (isRate && widget.networkUnitIsBps) {
+      final bits = bytes * BigInt.from(8);
+      const suffixes = ['bps', 'Kbps', 'Mbps', 'Gbps', 'Tbps'];
+      var value = bits.toDouble();
+      var suffixIndex = 0;
+      while (value >= 1000 && suffixIndex < suffixes.length - 1) {
+        value /= 1000;
+        suffixIndex++;
+      }
+      return '${value.toStringAsFixed(1)} ${suffixes[suffixIndex]}';
+    }
+
     const suffixes = ['B', 'KB', 'MB', 'GB', 'TB'];
     var value = bytes.toDouble();
     var suffixIndex = 0;
@@ -72,7 +89,7 @@ class _SystemInfoPageState extends State<SystemInfoPage> {
       suffixIndex++;
     }
 
-    return '${value.toStringAsFixed(2)} ${suffixes[suffixIndex]}';
+    return '${value.toStringAsFixed(2)} ${suffixes[suffixIndex]}${isRate ? '/s' : ''}';
   }
 
   String _formatUptime(BigInt uptimeSeconds) {

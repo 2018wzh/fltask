@@ -22,6 +22,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
   bool _autoRefreshEnabled = true; // 自动刷新开关
   Timer? _refreshTimer;
   ThemeMode _themeMode = ThemeMode.system; // 主题模式
+  bool _networkUnitIsBps = false; // 网络单位是否为bps
 
   // 刷新通知器 - 每个页面一个
   final ValueNotifier<int> _processesRefreshNotifier = ValueNotifier<int>(0);
@@ -204,6 +205,23 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
                     _showThemeDialog();
                   },
                 ),
+                // 网络单位设置
+                SwitchListTile(
+                  title: const Text('以 bps 显示网络速度'),
+                  subtitle: const Text('关闭则以 B/s 为单位'),
+                  value: _networkUnitIsBps,
+                  onChanged: (value) {
+                    setState(() {
+                      _networkUnitIsBps = value;
+                    });
+                    // We need to call the parent setState to update the value
+                    this.setState(() {
+                      _networkUnitIsBps = value;
+                    });
+                    _saveSettings();
+                  },
+                  secondary: Icon(MdiIcons.speedometer),
+                ),
               ],
             ),
           ),
@@ -265,6 +283,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
       final themeIndex =
           prefs.getInt('themeMode') ?? 0; // 0: system, 1: light, 2: dark
       _themeMode = ThemeMode.values[themeIndex];
+      _networkUnitIsBps = prefs.getBool('networkUnitIsBps') ?? false;
     });
     _startRefreshTimer();
   }
@@ -274,6 +293,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
     await prefs.setInt('refreshInterval', _refreshInterval);
     await prefs.setBool('autoRefreshEnabled', _autoRefreshEnabled);
     await prefs.setInt('themeMode', _themeMode.index);
+    await prefs.setBool('networkUnitIsBps', _networkUnitIsBps);
   }
 
   String _getThemeModeText(ThemeMode mode) {
@@ -431,8 +451,15 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
               controller: _tabController,
               children: [
                 ProcessesPage(refreshNotifier: _processesRefreshNotifier),
-                ChartsPage(refreshNotifier: _chartsRefreshNotifier),
-                SystemInfoPage(refreshNotifier: _systemInfoRefreshNotifier),
+                ChartsPage(
+                  refreshNotifier: _chartsRefreshNotifier,
+                  networkUnitIsBps: _networkUnitIsBps,
+                  refreshInterval: _refreshInterval,
+                ),
+                SystemInfoPage(
+                  refreshNotifier: _systemInfoRefreshNotifier,
+                  networkUnitIsBps: _networkUnitIsBps,
+                ),
               ],
             ),
           ),

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'processes_page.dart';
 import 'charts_page.dart';
 import 'system_info_page.dart';
 
 class TaskManagerScreen extends StatefulWidget {
-  const TaskManagerScreen({super.key});
+  final Function(ThemeMode)? onThemeChanged;
+
+  const TaskManagerScreen({super.key, this.onThemeChanged});
 
   @override
   State<TaskManagerScreen> createState() => _TaskManagerScreenState();
@@ -18,6 +21,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
   int _refreshInterval = 1; // 默认1秒刷新间隔
   bool _autoRefreshEnabled = true; // 自动刷新开关
   Timer? _refreshTimer;
+  ThemeMode _themeMode = ThemeMode.system; // 主题模式
 
   // 刷新通知器 - 每个页面一个
   final ValueNotifier<int> _processesRefreshNotifier = ValueNotifier<int>(0);
@@ -28,6 +32,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _loadSettings();
     _startRefreshTimer();
   }
 
@@ -79,6 +84,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
             setState(() {
               _refreshInterval = value!;
             });
+            _saveSettings();
             _startRefreshTimer(); // 重新启动定时器以应用新的间隔
             Navigator.pop(context);
           },
@@ -191,13 +197,11 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
                 ListTile(
                   leading: Icon(MdiIcons.palette),
                   title: const Text('主题'),
-                  subtitle: const Text('跟随系统'),
+                  subtitle: Text(_getThemeModeText(_themeMode)),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
-                    // TODO: 实现主题设置
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(const SnackBar(content: Text('主题设置功能待实现')));
+                    Navigator.pop(context);
+                    _showThemeDialog();
                   },
                 ),
                 // 语言设置 (预留)
@@ -225,6 +229,75 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
         ),
       ),
     );
+  }
+
+  void _showThemeDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('主题设置'),
+        content: RadioGroup<ThemeMode>(
+          groupValue: _themeMode,
+          onChanged: (value) {
+            setState(() {
+              _themeMode = value!;
+            });
+            widget.onThemeChanged?.call(value!);
+            _saveSettings();
+            Navigator.pop(context);
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('选择主题模式:'),
+              const SizedBox(height: 16),
+              ...[ThemeMode.system, ThemeMode.light, ThemeMode.dark].map(
+                (mode) => RadioListTile<ThemeMode>(
+                  title: Text(_getThemeModeText(mode)),
+                  value: mode,
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _refreshInterval = prefs.getInt('refreshInterval') ?? 1;
+      _autoRefreshEnabled = prefs.getBool('autoRefreshEnabled') ?? true;
+      final themeIndex =
+          prefs.getInt('themeMode') ?? 0; // 0: system, 1: light, 2: dark
+      _themeMode = ThemeMode.values[themeIndex];
+    });
+    _startRefreshTimer();
+  }
+
+  void _saveSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('refreshInterval', _refreshInterval);
+    await prefs.setBool('autoRefreshEnabled', _autoRefreshEnabled);
+    await prefs.setInt('themeMode', _themeMode.index);
+  }
+
+  String _getThemeModeText(ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.system:
+        return '跟随系统';
+      case ThemeMode.light:
+        return '浅色主题';
+      case ThemeMode.dark:
+        return '深色主题';
+    }
   }
 
   @override
@@ -328,6 +401,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
                                   this.setState(() {
                                     _autoRefreshEnabled = value;
                                   });
+                                  _saveSettings();
                                   _startRefreshTimer(); // 重新启动或停止定时器
                                 },
                                 materialTapTargetSize:

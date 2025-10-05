@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fltask/src/rust/frb_generated.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/task_manager_screen.dart';
 
 Future<void> main() async {
@@ -19,8 +20,35 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  ThemeMode _themeMode = ThemeMode.system;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadThemeMode();
+  }
+
+  Future<void> _loadThemeMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final themeIndex = prefs.getInt('themeMode') ?? 0;
+    setState(() {
+      _themeMode = ThemeMode.values[themeIndex];
+    });
+  }
+
+  void _updateThemeMode(ThemeMode mode) {
+    setState(() {
+      _themeMode = mode;
+    });
+  }
 
   // 获取平台特定的字体家族
   String? _getPlatformFontFamily() {
@@ -76,7 +104,8 @@ class MyApp extends StatelessWidget {
           scrolledUnderElevation: 0,
         ),
       ),
-      home: const TaskManagerScreen(),
+      themeMode: _themeMode,
+      home: TaskManagerScreen(onThemeChanged: _updateThemeMode),
     );
   }
 }

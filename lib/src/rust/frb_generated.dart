@@ -355,15 +355,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   SystemResourceInfo dco_decode_system_resource_info(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 6)
-      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
+    if (arr.length != 9)
+      throw Exception('unexpected arr length: expect 9 but see ${arr.length}');
     return SystemResourceInfo(
       cpuUsage: dco_decode_f_64(arr[0]),
       memoryTotal: dco_decode_u_64(arr[1]),
       memoryUsed: dco_decode_u_64(arr[2]),
       memoryAvailable: dco_decode_u_64(arr[3]),
-      diskUsage: dco_decode_list_disk_info(arr[4]),
-      networkUsage: dco_decode_network_info(arr[5]),
+      swapTotal: dco_decode_u_64(arr[4]),
+      swapUsed: dco_decode_u_64(arr[5]),
+      swapFree: dco_decode_u_64(arr[6]),
+      diskUsage: dco_decode_list_disk_info(arr[7]),
+      networkUsage: dco_decode_network_info(arr[8]),
     );
   }
 
@@ -547,6 +550,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_memoryTotal = sse_decode_u_64(deserializer);
     var var_memoryUsed = sse_decode_u_64(deserializer);
     var var_memoryAvailable = sse_decode_u_64(deserializer);
+    var var_swapTotal = sse_decode_u_64(deserializer);
+    var var_swapUsed = sse_decode_u_64(deserializer);
+    var var_swapFree = sse_decode_u_64(deserializer);
     var var_diskUsage = sse_decode_list_disk_info(deserializer);
     var var_networkUsage = sse_decode_network_info(deserializer);
     return SystemResourceInfo(
@@ -554,6 +560,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       memoryTotal: var_memoryTotal,
       memoryUsed: var_memoryUsed,
       memoryAvailable: var_memoryAvailable,
+      swapTotal: var_swapTotal,
+      swapUsed: var_swapUsed,
+      swapFree: var_swapFree,
       diskUsage: var_diskUsage,
       networkUsage: var_networkUsage,
     );
@@ -712,6 +721,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_u_64(self.memoryTotal, serializer);
     sse_encode_u_64(self.memoryUsed, serializer);
     sse_encode_u_64(self.memoryAvailable, serializer);
+    sse_encode_u_64(self.swapTotal, serializer);
+    sse_encode_u_64(self.swapUsed, serializer);
+    sse_encode_u_64(self.swapFree, serializer);
     sse_encode_list_disk_info(self.diskUsage, serializer);
     sse_encode_network_info(self.networkUsage, serializer);
   }

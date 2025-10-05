@@ -389,6 +389,9 @@ impl SseDecode for crate::api::simple::SystemResourceInfo {
         let mut var_memoryTotal = <u64>::sse_decode(deserializer);
         let mut var_memoryUsed = <u64>::sse_decode(deserializer);
         let mut var_memoryAvailable = <u64>::sse_decode(deserializer);
+        let mut var_swapTotal = <u64>::sse_decode(deserializer);
+        let mut var_swapUsed = <u64>::sse_decode(deserializer);
+        let mut var_swapFree = <u64>::sse_decode(deserializer);
         let mut var_diskUsage = <Vec<crate::api::simple::DiskInfo>>::sse_decode(deserializer);
         let mut var_networkUsage = <crate::api::simple::NetworkInfo>::sse_decode(deserializer);
         return crate::api::simple::SystemResourceInfo {
@@ -396,6 +399,9 @@ impl SseDecode for crate::api::simple::SystemResourceInfo {
             memory_total: var_memoryTotal,
             memory_used: var_memoryUsed,
             memory_available: var_memoryAvailable,
+            swap_total: var_swapTotal,
+            swap_used: var_swapUsed,
+            swap_free: var_swapFree,
             disk_usage: var_diskUsage,
             network_usage: var_networkUsage,
         };
@@ -575,6 +581,9 @@ impl flutter_rust_bridge::IntoDart for crate::api::simple::SystemResourceInfo {
             self.memory_total.into_into_dart().into_dart(),
             self.memory_used.into_into_dart().into_dart(),
             self.memory_available.into_into_dart().into_dart(),
+            self.swap_total.into_into_dart().into_dart(),
+            self.swap_used.into_into_dart().into_dart(),
+            self.swap_free.into_into_dart().into_dart(),
             self.disk_usage.into_into_dart().into_dart(),
             self.network_usage.into_into_dart().into_dart(),
         ]
@@ -711,6 +720,9 @@ impl SseEncode for crate::api::simple::SystemResourceInfo {
         <u64>::sse_encode(self.memory_total, serializer);
         <u64>::sse_encode(self.memory_used, serializer);
         <u64>::sse_encode(self.memory_available, serializer);
+        <u64>::sse_encode(self.swap_total, serializer);
+        <u64>::sse_encode(self.swap_used, serializer);
+        <u64>::sse_encode(self.swap_free, serializer);
         <Vec<crate::api::simple::DiskInfo>>::sse_encode(self.disk_usage, serializer);
         <crate::api::simple::NetworkInfo>::sse_encode(self.network_usage, serializer);
     }

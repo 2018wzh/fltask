@@ -26,11 +26,19 @@ pub fn get_system_resources_impl() -> SystemResourceInfo {
         // 获取网络信息
         let network_usage = get_network_info();
 
+        // Page file (swap) approximation via performance counters is complex; we approximate using virtual memory (total commit limit - available commit). For now set to 0 if unavailable.
+        let swap_total: u64 = mem_status.ullTotalPageFile - mem_status.ullTotalPhys; // rough extra commit space beyond physical
+        let swap_used: u64 = if mem_status.ullTotalPageFile > mem_status.ullAvailPageFile { mem_status.ullTotalPageFile - mem_status.ullAvailPageFile } else { 0 };
+        let swap_free: u64 = mem_status.ullAvailPageFile;
+
         SystemResourceInfo {
             cpu_usage,
             memory_total: mem_status.ullTotalPhys,
             memory_used: mem_status.ullTotalPhys - mem_status.ullAvailPhys,
             memory_available: mem_status.ullAvailPhys,
+            swap_total,
+            swap_used,
+            swap_free,
             disk_usage,
             network_usage,
         }

@@ -196,6 +196,9 @@ class SystemResourceInfo {
   final BigInt memoryTotal;
   final BigInt memoryUsed;
   final BigInt memoryAvailable;
+  final BigInt swapTotal;
+  final BigInt swapUsed;
+  final BigInt swapFree;
   final List<DiskInfo> diskUsage;
   final NetworkInfo networkUsage;
 
@@ -204,6 +207,9 @@ class SystemResourceInfo {
     required this.memoryTotal,
     required this.memoryUsed,
     required this.memoryAvailable,
+    required this.swapTotal,
+    required this.swapUsed,
+    required this.swapFree,
     required this.diskUsage,
     required this.networkUsage,
   });
@@ -214,6 +220,9 @@ class SystemResourceInfo {
       memoryTotal.hashCode ^
       memoryUsed.hashCode ^
       memoryAvailable.hashCode ^
+      swapTotal.hashCode ^
+      swapUsed.hashCode ^
+      swapFree.hashCode ^
       diskUsage.hashCode ^
       networkUsage.hashCode;
 
@@ -226,6 +235,9 @@ class SystemResourceInfo {
           memoryTotal == other.memoryTotal &&
           memoryUsed == other.memoryUsed &&
           memoryAvailable == other.memoryAvailable &&
+          swapTotal == other.swapTotal &&
+          swapUsed == other.swapUsed &&
+          swapFree == other.swapFree &&
           diskUsage == other.diskUsage &&
           networkUsage == other.networkUsage;
 }

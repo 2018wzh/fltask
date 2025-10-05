@@ -45,6 +45,10 @@ pub struct SystemResourceInfo {
     pub memory_total: u64,
     pub memory_used: u64,
     pub memory_available: u64,
+    // Swap (page file) statistics
+    pub swap_total: u64,
+    pub swap_used: u64,
+    pub swap_free: u64,
     pub disk_usage: Vec<DiskInfo>,
     pub network_usage: NetworkInfo,
 }

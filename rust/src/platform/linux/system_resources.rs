@@ -4,22 +4,41 @@ use nix::sys::statvfs;
 use std::fs;
 
 pub fn get_system_resources_impl() -> SystemResourceInfo {
-    let total_memory = fs::read_to_string("/proc/meminfo").ok().and_then(|meminfo| {
+    let mut mem_total: u64 = 0;
+    let mut mem_available: u64 = 0;
+    let mut swap_total: u64 = 0;
+    let mut swap_free: u64 = 0;
+    if let Ok(meminfo) = fs::read_to_string("/proc/meminfo") {
         for line in meminfo.lines() {
             if line.starts_with("MemTotal:") {
-                if let Some(kb) = line.split_whitespace().nth(1) { return Some(kb.parse::<u64>().unwrap_or(0) * 1024); }
+                if let Some(kb) = line.split_whitespace().nth(1) { mem_total = kb.parse::<u64>().unwrap_or(0) * 1024; }
+            } else if line.starts_with("MemAvailable:") {
+                if let Some(kb) = line.split_whitespace().nth(1) { mem_available = kb.parse::<u64>().unwrap_or(0) * 1024; }
+            } else if line.starts_with("SwapTotal:") {
+                if let Some(kb) = line.split_whitespace().nth(1) { swap_total = kb.parse::<u64>().unwrap_or(0) * 1024; }
+            } else if line.starts_with("SwapFree:") {
+                if let Some(kb) = line.split_whitespace().nth(1) { swap_free = kb.parse::<u64>().unwrap_or(0) * 1024; }
             }
         }
-        None
-    }).unwrap_or(0);
-    let free_memory = 0; // Placeholder; Linux free memory semantics are nuanced.
-    let used_memory = total_memory - free_memory;
+    }
+    let mem_used = if mem_total > mem_available { mem_total - mem_available } else { 0 };
+    let swap_used = if swap_total > swap_free { swap_total - swap_free } else { 0 };
 
-    let cpu_usage = 0.0; // TODO: implement sampling based load
+    let cpu_usage = 0.0; // TODO: implement sampling based load (requires previous reading of /proc/stat)
     let disk_usage = get_disk_info();
     let network_usage = get_network_info();
 
-    SystemResourceInfo { cpu_usage, memory_total: total_memory, memory_used: used_memory, memory_available: free_memory, disk_usage, network_usage }
+    SystemResourceInfo {
+        cpu_usage,
+        memory_total: mem_total,
+        memory_used: mem_used,
+        memory_available: mem_available,
+        swap_total,
+        swap_used,
+        swap_free,
+        disk_usage,
+        network_usage,
+    }
 }
 
 fn get_disk_info() -> Vec<DiskInfo> {

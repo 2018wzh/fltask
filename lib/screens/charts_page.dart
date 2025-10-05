@@ -29,8 +29,10 @@ class _ChartsPageState extends State<ChartsPage> {
   final List<FlSpot> _swapData = [];
   final List<FlSpot> _networkReceiveData = [];
   final List<FlSpot> _networkSendData = [];
-  double _timeIndex = 0;
+  double _timeIndex = 0; // 按真实经过时间(秒)累计
   final int _maxDataPoints = 60;
+  DateTime? _lastSampleTime;
+  DateTime? _startTime;
 
   // 模拟多核CPU数据
   final List<List<FlSpot>> _cpuCoreData = [];
@@ -50,10 +52,26 @@ class _ChartsPageState extends State<ChartsPage> {
     super.initState();
     _initializeCpuData();
     _loadSystemResources();
-    _timer = Timer.periodic(Duration(seconds: widget.refreshInterval), (timer) {
-      _loadSystemResources();
-    });
+    _startTime = DateTime.now();
+    _lastSampleTime = null;
+    _timer = Timer.periodic(
+      Duration(seconds: widget.refreshInterval),
+      (_) => _loadSystemResources(),
+    );
     widget.refreshNotifier?.addListener(_onRefresh);
+  }
+
+  @override
+  void didUpdateWidget(covariant ChartsPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.refreshInterval != widget.refreshInterval) {
+      // 重建定时器以应用新的刷新间隔
+      _timer?.cancel();
+      _timer = Timer.periodic(
+        Duration(seconds: widget.refreshInterval),
+        (_) => _loadSystemResources(),
+      );
+    }
   }
 
   void _initializeCpuData() {
@@ -81,9 +99,20 @@ class _ChartsPageState extends State<ChartsPage> {
   void _loadSystemResources() {
     try {
       final resources = getSystemResources();
+      final now = DateTime.now();
+      double elapsedSeconds = 0;
+      if (_lastSampleTime != null) {
+        elapsedSeconds =
+            now.difference(_lastSampleTime!).inMilliseconds / 1000.0;
+      } else {
+        _startTime ??= now;
+      }
+      _lastSampleTime = now;
       setState(() {
         _systemResources = resources;
-        _timeIndex++;
+        // 使用真实经过时间推进 x 轴
+        _timeIndex += elapsedSeconds;
+        if (_timeIndex.isNaN || _timeIndex.isInfinite) _timeIndex = 0;
 
         // 添加CPU数据点
         _cpuData.add(FlSpot(_timeIndex, resources.cpuUsage));
@@ -140,17 +169,21 @@ class _ChartsPageState extends State<ChartsPage> {
         double receiveSpeed = 0;
         double sendSpeed = 0;
         if (_previousSystemResources != null) {
-          final interval = widget.refreshInterval.toDouble();
-          receiveSpeed =
-              (resources.networkUsage.bytesReceived -
-                      _previousSystemResources!.networkUsage.bytesReceived)
-                  .toDouble() /
-              interval;
-          sendSpeed =
-              (resources.networkUsage.bytesSent -
-                      _previousSystemResources!.networkUsage.bytesSent)
-                  .toDouble() /
-              interval;
+          final interval = elapsedSeconds > 0
+              ? elapsedSeconds
+              : widget.refreshInterval.toDouble();
+          if (interval > 0) {
+            receiveSpeed =
+                (resources.networkUsage.bytesReceived -
+                        _previousSystemResources!.networkUsage.bytesReceived)
+                    .toDouble() /
+                interval;
+            sendSpeed =
+                (resources.networkUsage.bytesSent -
+                        _previousSystemResources!.networkUsage.bytesSent)
+                    .toDouble() /
+                interval;
+          }
         }
 
         _networkReceiveData.add(FlSpot(_timeIndex, receiveSpeed));

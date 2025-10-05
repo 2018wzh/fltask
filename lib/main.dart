@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:fltask/src/rust/frb_generated.dart';
 import 'screens/task_manager_screen.dart';
 
@@ -21,8 +22,28 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  // 获取平台特定的字体家族
+  String? _getPlatformFontFamily() {
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.windows:
+        return 'Microsoft YaHei UI';
+      case TargetPlatform.macOS:
+        return 'SF Pro Display';
+      case TargetPlatform.linux:
+        return null;
+      case TargetPlatform.android:
+        return 'Roboto';
+      case TargetPlatform.iOS:
+        return 'SF Pro Display';
+      case TargetPlatform.fuchsia:
+        return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final platformFont = _getPlatformFontFamily();
+
     return MaterialApp(
       title: '任务管理器',
       debugShowCheckedModeBanner: false,
@@ -30,6 +51,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         brightness: Brightness.light,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        fontFamily: platformFont,
         // 使用系统标题栏样式
         appBarTheme: const AppBarTheme(
           systemOverlayStyle: SystemUiOverlayStyle.dark,
@@ -45,6 +67,7 @@ class MyApp extends StatelessWidget {
           seedColor: Colors.blue,
           brightness: Brightness.dark,
         ),
+        fontFamily: platformFont,
         // 使用系统标题栏样式 - 深色模式
         appBarTheme: const AppBarTheme(
           systemOverlayStyle: SystemUiOverlayStyle.light,

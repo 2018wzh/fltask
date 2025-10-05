@@ -44,6 +44,13 @@ class _ProcessTreeItemState extends State<ProcessTreeItem> {
     return Colors.green;
   }
 
+  Color _getMemoryUsageColor(BigInt memoryUsage) {
+    final megabytes = memoryUsage / BigInt.from(1024 * 1024);
+    if (megabytes > 512) return Colors.red;
+    if (megabytes > 256) return Colors.orange;
+    return Colors.green;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -57,8 +64,8 @@ class _ProcessTreeItemState extends State<ProcessTreeItem> {
           margin: EdgeInsets.only(
             left: 8 + indent,
             right: 8,
-            top: 4,
-            bottom: 4,
+            top: 2,
+            bottom: 2,
           ),
           child: InkWell(
             borderRadius: BorderRadius.circular(8),
@@ -68,9 +75,15 @@ class _ProcessTreeItemState extends State<ProcessTreeItem> {
                       _isExpanded = !_isExpanded;
                     });
                   }
-                : null,
+                : () {
+                    showDialog(
+                      context: context,
+                      builder: (context) =>
+                          _ProcessDetailsDialog(process: widget.process),
+                    );
+                  },
             child: Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Row(
                 children: [
                   // 展开/折叠图标
@@ -95,110 +108,109 @@ class _ProcessTreeItemState extends State<ProcessTreeItem> {
                   // 进程图标
                   Icon(
                     MdiIcons.application,
-                    size: 18,
+                    size: 16,
                     color: colorScheme.primary,
                   ),
-
                   const SizedBox(width: 8),
 
-                  // 进程信息
+                  // 进程名
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    flex: 3,
+                    child: Text(
+                      widget.process.name,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+
+                  // PID
+                  SizedBox(
+                    width: 60,
+                    child: Text(
+                      '${widget.process.pid}',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+
+                  // CPU使用率
+                  SizedBox(
+                    width: 70,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // 进程名和PID
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                widget.process.name,
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            Text(
-                              'PID: ${widget.process.pid}',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurface.withValues(
-                                  alpha: 0.6,
-                                ),
-                              ),
-                            ),
-                          ],
+                        Icon(
+                          MdiIcons.cpu64Bit,
+                          size: 14,
+                          color: _getCpuUsageColor(widget.process.cpuUsage),
                         ),
-
-                        const SizedBox(height: 4),
-
-                        // 资源使用情况
-                        Row(
-                          children: [
-                            // CPU使用率
-                            Icon(
-                              MdiIcons.memory,
-                              size: 12,
-                              color: _getCpuUsageColor(widget.process.cpuUsage),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${widget.process.cpuUsage.toStringAsFixed(1)}%',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: _getCpuUsageColor(
-                                  widget.process.cpuUsage,
-                                ),
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-
-                            const SizedBox(width: 16),
-
-                            // 内存使用
-                            Icon(
-                              MdiIcons.memory,
-                              size: 12,
-                              color: colorScheme.onSurface.withValues(
-                                alpha: 0.6,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              _formatBytes(widget.process.memoryUsage),
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurface.withValues(
-                                  alpha: 0.6,
-                                ),
-                              ),
-                            ),
-
-                            const Spacer(),
-
-                            // 状态
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 1,
-                              ),
-                              decoration: BoxDecoration(
-                                color: widget.process.status == 'Running'
-                                    ? Colors.green.withValues(alpha: 0.2)
-                                    : Colors.grey.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                widget.process.status,
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: widget.process.status == 'Running'
-                                      ? Colors.green
-                                      : Colors.grey,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ],
+                        const SizedBox(width: 2),
+                        Text(
+                          '${widget.process.cpuUsage.toStringAsFixed(1)}%',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: _getCpuUsageColor(widget.process.cpuUsage),
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ],
+                    ),
+                  ),
+
+                  // 内存使用
+                  SizedBox(
+                    width: 80,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          MdiIcons.memory,
+                          size: 14,
+                          color: _getMemoryUsageColor(
+                            widget.process.memoryUsage,
+                          ),
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          _formatBytes(widget.process.memoryUsage),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: _getMemoryUsageColor(
+                              widget.process.memoryUsage,
+                            ),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // 状态
+                  SizedBox(
+                    width: 60,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: widget.process.status == 'Running'
+                            ? Colors.green.withValues(alpha: 0.2)
+                            : Colors.grey.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        widget.process.status == 'Running' ? '运行' : '停止',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: widget.process.status == 'Running'
+                              ? Colors.green
+                              : Colors.grey,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ),
 
@@ -211,6 +223,7 @@ class _ProcessTreeItemState extends State<ProcessTreeItem> {
                       minWidth: 32,
                       minHeight: 32,
                     ),
+                    padding: EdgeInsets.zero,
                   ),
                 ],
               ),
@@ -230,6 +243,173 @@ class _ProcessTreeItemState extends State<ProcessTreeItem> {
             ),
           ),
       ],
+    );
+  }
+}
+
+class _ProcessDetailsDialog extends StatelessWidget {
+  final ProcessInfo process;
+
+  const _ProcessDetailsDialog({super.key, required this.process});
+
+  String _formatBytes(BigInt bytes) {
+    const suffixes = ['B', 'KB', 'MB', 'GB'];
+    var value = bytes.toDouble();
+    var suffixIndex = 0;
+
+    while (value >= 1024 && suffixIndex < suffixes.length - 1) {
+      value /= 1024;
+      suffixIndex++;
+    }
+
+    return '${value.toStringAsFixed(1)} ${suffixes[suffixIndex]}';
+  }
+
+  Color _getCpuUsageColor(double cpuUsage) {
+    if (cpuUsage > 50) return Colors.red;
+    if (cpuUsage > 25) return Colors.orange;
+    return Colors.green;
+  }
+
+  Color _getMemoryUsageColor(BigInt memoryUsage) {
+    final mb = memoryUsage.toDouble() / (1024 * 1024);
+    if (mb > 500) return Colors.red;
+    if (mb > 100) return Colors.orange;
+    return Colors.green;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 进程名和PID
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    process.name,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Text(
+                  'PID: ${process.pid}',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+
+            // 资源使用情况
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // CPU使用率
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'CPU使用率',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(
+                            MdiIcons.cpu64Bit,
+                            size: 14,
+                            color: _getCpuUsageColor(process.cpuUsage),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${process.cpuUsage.toStringAsFixed(1)}%',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: _getCpuUsageColor(process.cpuUsage),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                // 内存使用
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '内存使用',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(
+                            MdiIcons.memory,
+                            size: 14,
+                            color: _getMemoryUsageColor(process.memoryUsage),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            _formatBytes(process.memoryUsage),
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: _getMemoryUsageColor(process.memoryUsage),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            // 状态
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: process.status == 'Running'
+                    ? Colors.green.withValues(alpha: 0.2)
+                    : Colors.grey.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                process.status,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: process.status == 'Running'
+                      ? Colors.green
+                      : Colors.grey,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

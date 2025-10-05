@@ -44,7 +44,7 @@ class ProcessListItem extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
         onTap: () {
@@ -54,129 +54,117 @@ class ProcessListItem extends StatelessWidget {
           );
         },
         child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
             children: [
-              // 进程名和PID
-              Row(
-                children: [
-                  Icon(
-                    MdiIcons.application,
-                    size: 20,
-                    color: colorScheme.primary,
+              // 进程图标
+              Icon(MdiIcons.application, size: 18, color: colorScheme.primary),
+              const SizedBox(width: 8),
+
+              // 进程名
+              Expanded(
+                flex: 3,
+                child: Text(
+                  process.name,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      process.name,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  Text(
-                    'PID: ${process.pid}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurface.withValues(alpha: 0.6),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: onKill,
-                    icon: Icon(MdiIcons.close, color: Colors.red, size: 20),
-                    tooltip: '结束进程',
-                    constraints: const BoxConstraints(
-                      minWidth: 32,
-                      minHeight: 32,
-                    ),
-                  ),
-                ],
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
 
-              const SizedBox(height: 8),
-
-              // 资源使用情况
-              Row(
-                children: [
-                  // CPU使用率
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Icon(
-                          MdiIcons.memory,
-                          size: 16,
-                          color: _getCpuUsageColor(process.cpuUsage),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'CPU: ${process.cpuUsage.toStringAsFixed(1)}%',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: _getCpuUsageColor(process.cpuUsage),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
+              // PID
+              SizedBox(
+                width: 60,
+                child: Text(
+                  '${process.pid}',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
 
-                  // 内存使用
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Icon(
-                          MdiIcons.memory,
-                          size: 16,
-                          color: _getMemoryUsageColor(process.memoryUsage),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '内存: ${_formatBytes(process.memoryUsage)}',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: _getMemoryUsageColor(process.memoryUsage),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
+              // CPU使用率
+              SizedBox(
+                width: 70,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      MdiIcons.cpu64Bit,
+                      size: 14,
+                      color: _getCpuUsageColor(process.cpuUsage),
                     ),
-                  ),
-
-                  // 状态
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: process.status == 'Running'
-                          ? Colors.green.withValues(alpha: 0.2)
-                          : Colors.grey.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      process.status,
+                    const SizedBox(width: 2),
+                    Text(
+                      '${process.cpuUsage.toStringAsFixed(1)}%',
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: process.status == 'Running'
-                            ? Colors.green
-                            : Colors.grey,
+                        color: _getCpuUsageColor(process.cpuUsage),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
 
-              const SizedBox(height: 4),
-
-              // 命令行
-              Text(
-                process.command,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurface.withValues(alpha: 0.6),
-                  fontFamily: 'monospace',
+              // 内存使用
+              SizedBox(
+                width: 80,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      MdiIcons.memory,
+                      size: 14,
+                      color: _getMemoryUsageColor(process.memoryUsage),
+                    ),
+                    const SizedBox(width: 2),
+                    Text(
+                      _formatBytes(process.memoryUsage),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: _getMemoryUsageColor(process.memoryUsage),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
+              ),
+
+              // 状态
+              SizedBox(
+                width: 60,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: process.status == 'Running'
+                        ? Colors.green.withValues(alpha: 0.2)
+                        : Colors.grey.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    process.status == 'Running' ? '运行' : '停止',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: process.status == 'Running'
+                          ? Colors.green
+                          : Colors.grey,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+
+              // 结束进程按钮
+              IconButton(
+                onPressed: onKill,
+                icon: Icon(MdiIcons.close, color: Colors.red, size: 18),
+                tooltip: '结束进程',
+                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                padding: EdgeInsets.zero,
               ),
             ],
           ),

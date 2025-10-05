@@ -4,7 +4,12 @@ use crate::platform::windows::{
     get_processes_impl, get_system_resources_impl, get_system_info_impl, kill_process_impl
 };
 
-#[cfg(not(target_os = "windows"))]
+#[cfg(target_os = "linux")]
+use crate::platform::linux::{
+    get_processes_impl, get_system_resources_impl, get_system_info_impl, kill_process_impl
+};
+
+#[cfg(not(any(target_os = "windows", target_os = "linux")))]
 use crate::platform::default::{
     get_processes_impl, get_system_resources_impl, get_system_info_impl, kill_process_impl
 };

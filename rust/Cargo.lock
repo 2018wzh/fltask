@@ -1357,6 +1357,7 @@ version = "0.1.0"
 dependencies = [
  "flutter_rust_bridge",
  "flutter_rust_bridge_codegen",
+ "lazy_static",
  "libc",
  "libproc",
  "nix",

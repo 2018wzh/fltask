@@ -20,6 +20,9 @@ class _ProcessesPageState extends State<ProcessesPage> {
   String _sortBy = 'name';
   bool _sortAscending = true;
   String _filterText = '';
+  double? _minCpu; // 百分比
+  int? _minMemoryMB; // 以MB为单位
+  String _statusFilter = 'all';
 
   @override
   void initState() {
@@ -86,14 +89,173 @@ class _ProcessesPageState extends State<ProcessesPage> {
   }
 
   List<ProcessInfo> get _filteredProcesses {
-    if (_filterText.isEmpty) return _processes;
-    return _processes
-        .where(
-          (process) =>
-              process.name.toLowerCase().contains(_filterText.toLowerCase()) ||
-              process.command.toLowerCase().contains(_filterText.toLowerCase()),
-        )
-        .toList();
+    Iterable<ProcessInfo> list = _processes;
+    if (_filterText.isNotEmpty) {
+      final kw = _filterText.toLowerCase();
+      list = list.where(
+        (p) =>
+            p.name.toLowerCase().contains(kw) ||
+            p.command.toLowerCase().contains(kw),
+      );
+    }
+    if (_minCpu != null) {
+      list = list.where((p) => p.cpuUsage >= _minCpu!);
+    }
+    if (_minMemoryMB != null) {
+      final thresholdBytes =
+          BigInt.from(_minMemoryMB!) * BigInt.from(1024 * 1024);
+      list = list.where((p) => p.memoryUsage >= thresholdBytes);
+    }
+    if (_statusFilter != 'all') {
+      list = list.where((p) => p.status.toLowerCase() == _statusFilter);
+    }
+    return list.toList();
+  }
+
+  bool get _hasActiveFilters =>
+      _minCpu != null || _minMemoryMB != null || _statusFilter != 'all';
+
+  void _clearFilters() {
+    setState(() {
+      _minCpu = null;
+      _minMemoryMB = null;
+      _statusFilter = 'all';
+    });
+  }
+
+  void _openFilterSheet() {
+    double? tempCpu = _minCpu;
+    double sliderCpu = (tempCpu ?? 0).toDouble();
+    int? tempMem = _minMemoryMB;
+    double sliderMem = (tempMem ?? 0).toDouble();
+    String tempStatus = _statusFilter;
+
+    final statuses = <String>{'all'};
+    for (final p in _processes) {
+      if (p.status.isNotEmpty) statuses.add(p.status.toLowerCase());
+    }
+    final statusList = statuses.toList()..sort();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: 16 + MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: StatefulBuilder(
+            builder: (context, setModal) => Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.filter_alt, size: 20),
+                    const SizedBox(width: 8),
+                    const Text(
+                      '过滤器',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Spacer(),
+                    if (_hasActiveFilters)
+                      TextButton(
+                        onPressed: () {
+                          setModal(() {
+                            sliderCpu = 0;
+                            sliderMem = 0;
+                            tempCpu = null;
+                            tempMem = null;
+                            tempStatus = 'all';
+                          });
+                        },
+                        child: const Text('重置'),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text('最小CPU使用率 (${(tempCpu ?? 0).toStringAsFixed(0)}%)'),
+                Slider(
+                  value: sliderCpu,
+                  min: 0,
+                  max: 100,
+                  divisions: 20,
+                  label: sliderCpu.toStringAsFixed(0),
+                  onChanged: (v) {
+                    setModal(() {
+                      sliderCpu = v;
+                      tempCpu = v == 0 ? null : v;
+                    });
+                  },
+                ),
+                const SizedBox(height: 8),
+                Text('最小内存 (MB) (${(tempMem ?? 0)}MB)'),
+                Slider(
+                  value: sliderMem,
+                  min: 0,
+                  max: 4096,
+                  divisions: 64,
+                  label: sliderMem.toStringAsFixed(0),
+                  onChanged: (v) {
+                    setModal(() {
+                      sliderMem = v;
+                      tempMem = v == 0 ? null : v.toInt();
+                    });
+                  },
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Text(
+                      '状态',
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    const SizedBox(width: 16),
+                    DropdownButton<String>(
+                      value: tempStatus,
+                      items: statusList
+                          .map(
+                            (s) => DropdownMenuItem(
+                              value: s,
+                              child: Text(s == 'all' ? '全部' : s),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (v) {
+                        if (v == null) return;
+                        setModal(() => tempStatus = v);
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () {
+                      setState(() {
+                        _minCpu = tempCpu;
+                        _minMemoryMB = tempMem;
+                        _statusFilter = tempStatus;
+                      });
+                      Navigator.pop(context);
+                    },
+                    child: const Text('应用'),
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _killProcess(ProcessInfo process) {
@@ -212,9 +374,7 @@ class _ProcessesPageState extends State<ProcessesPage> {
                   const SizedBox(width: 16),
                   IconButton(
                     onPressed: () {
-                      setState(() {
-                        _isTreeView = !_isTreeView;
-                      });
+                      setState(() => _isTreeView = !_isTreeView);
                     },
                     icon: Icon(
                       _isTreeView ? MdiIcons.viewList : MdiIcons.fileTree,
@@ -226,8 +386,54 @@ class _ProcessesPageState extends State<ProcessesPage> {
                     icon: const Icon(Icons.refresh),
                     tooltip: '刷新',
                   ),
+                  IconButton(
+                    onPressed: _openFilterSheet,
+                    icon: Icon(
+                      Icons.filter_alt,
+                      color: _hasActiveFilters
+                          ? Theme.of(context).colorScheme.primary
+                          : null,
+                    ),
+                    tooltip: '过滤器',
+                  ),
                 ],
               ),
+              if (_hasActiveFilters) ...[
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: [
+                      if (_minCpu != null)
+                        FilterChip(
+                          label: Text('CPU ≥ ${_minCpu!.toStringAsFixed(0)}%'),
+                          onSelected: (_) {},
+                          onDeleted: () => setState(() => _minCpu = null),
+                        ),
+                      if (_minMemoryMB != null)
+                        FilterChip(
+                          label: Text('内存 ≥ ${_minMemoryMB}MB'),
+                          onSelected: (_) {},
+                          onDeleted: () => setState(() => _minMemoryMB = null),
+                        ),
+                      if (_statusFilter != 'all')
+                        FilterChip(
+                          label: Text('状态: $_statusFilter'),
+                          onSelected: (_) {},
+                          onDeleted: () =>
+                              setState(() => _statusFilter = 'all'),
+                        ),
+                      ActionChip(
+                        label: const Text('清除全部'),
+                        avatar: const Icon(Icons.clear, size: 16),
+                        onPressed: _clearFilters,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               const SizedBox(height: 16),
               // 排序选项
               SingleChildScrollView(

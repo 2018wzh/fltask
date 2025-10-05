@@ -1,10 +1,6 @@
 name: Build
 
 on:
-  push:
-    branches: [ release ]
-  pull_request:
-    branches: [ release ]
   workflow_dispatch:
 
 concurrency:
@@ -81,7 +77,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Flutter (${% raw %}{{ matrix.build_target }}{% endraw %})
-        run: flutter build ${{ matrix.build_target }} --release
+        run: flutter build ${{ matrix.build_target }} --debug
 
       - name: List build outputs (debug)
         run: |

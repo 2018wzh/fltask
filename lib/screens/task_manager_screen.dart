@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'dart:async';
 import 'processes_page.dart';
 import 'charts_page.dart';
 import 'system_info_page.dart';
@@ -16,17 +17,55 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
   late TabController _tabController;
   int _refreshInterval = 1; // 默认1秒刷新间隔
   bool _autoRefreshEnabled = true; // 自动刷新开关
+  Timer? _refreshTimer;
+
+  // 刷新通知器 - 每个页面一个
+  final ValueNotifier<int> _processesRefreshNotifier = ValueNotifier<int>(0);
+  final ValueNotifier<int> _chartsRefreshNotifier = ValueNotifier<int>(0);
+  final ValueNotifier<int> _systemInfoRefreshNotifier = ValueNotifier<int>(0);
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _startRefreshTimer();
   }
 
   @override
   void dispose() {
+    _refreshTimer?.cancel();
+    _processesRefreshNotifier.dispose();
+    _chartsRefreshNotifier.dispose();
+    _systemInfoRefreshNotifier.dispose();
     _tabController.dispose();
     super.dispose();
+  }
+
+  void _startRefreshTimer() {
+    _refreshTimer?.cancel();
+    if (_autoRefreshEnabled) {
+      _refreshTimer = Timer.periodic(
+        Duration(seconds: _refreshInterval),
+        (timer) => _refreshCurrentTab(),
+      );
+    }
+  }
+
+  void _refreshCurrentTab() {
+    if (!mounted) return;
+
+    // 触发当前页面的刷新通知
+    switch (_tabController.index) {
+      case 0:
+        _processesRefreshNotifier.value = _processesRefreshNotifier.value + 1;
+        break;
+      case 1:
+        _chartsRefreshNotifier.value = _chartsRefreshNotifier.value + 1;
+        break;
+      case 2:
+        _systemInfoRefreshNotifier.value = _systemInfoRefreshNotifier.value + 1;
+        break;
+    }
   }
 
   void _showRefreshIntervalDialog() {
@@ -40,6 +79,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
             setState(() {
               _refreshInterval = value!;
             });
+            _startRefreshTimer(); // 重新启动定时器以应用新的间隔
             Navigator.pop(context);
           },
           child: Column(
@@ -288,7 +328,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
                                   this.setState(() {
                                     _autoRefreshEnabled = value;
                                   });
-                                  // TODO: 实现自动刷新逻辑
+                                  _startRefreshTimer(); // 重新启动或停止定时器
                                 },
                                 materialTapTargetSize:
                                     MaterialTapTargetSize.shrinkWrap,
@@ -328,7 +368,11 @@ class _TaskManagerScreenState extends State<TaskManagerScreen>
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: [ProcessesPage(), ChartsPage(), SystemInfoPage()],
+              children: [
+                ProcessesPage(refreshNotifier: _processesRefreshNotifier),
+                ChartsPage(refreshNotifier: _chartsRefreshNotifier),
+                SystemInfoPage(refreshNotifier: _systemInfoRefreshNotifier),
+              ],
             ),
           ),
         ],

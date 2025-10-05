@@ -3,7 +3,9 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import '../src/rust/api/simple.dart';
 
 class SystemInfoPage extends StatefulWidget {
-  const SystemInfoPage({super.key});
+  final ValueNotifier<int>? refreshNotifier;
+
+  const SystemInfoPage({super.key, this.refreshNotifier});
 
   @override
   State<SystemInfoPage> createState() => _SystemInfoPageState();
@@ -17,6 +19,17 @@ class _SystemInfoPageState extends State<SystemInfoPage> {
   @override
   void initState() {
     super.initState();
+    _loadSystemInfo();
+    widget.refreshNotifier?.addListener(_onRefresh);
+  }
+
+  @override
+  void dispose() {
+    widget.refreshNotifier?.removeListener(_onRefresh);
+    super.dispose();
+  }
+
+  void _onRefresh() {
     _loadSystemInfo();
   }
 
@@ -43,6 +56,10 @@ class _SystemInfoPageState extends State<SystemInfoPage> {
         ).showSnackBar(SnackBar(content: Text('加载系统信息失败: $e')));
       }
     }
+  }
+
+  void refresh() {
+    _loadSystemInfo();
   }
 
   String _formatBytes(BigInt bytes) {

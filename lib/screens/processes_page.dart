@@ -5,7 +5,9 @@ import '../widgets/process_list_item.dart';
 import '../widgets/process_tree_item.dart';
 
 class ProcessesPage extends StatefulWidget {
-  const ProcessesPage({super.key});
+  final ValueNotifier<int>? refreshNotifier;
+
+  const ProcessesPage({super.key, this.refreshNotifier});
 
   @override
   State<ProcessesPage> createState() => _ProcessesPageState();
@@ -22,6 +24,17 @@ class _ProcessesPageState extends State<ProcessesPage> {
   @override
   void initState() {
     super.initState();
+    _loadProcesses();
+    widget.refreshNotifier?.addListener(_onRefresh);
+  }
+
+  @override
+  void dispose() {
+    widget.refreshNotifier?.removeListener(_onRefresh);
+    super.dispose();
+  }
+
+  void _onRefresh() {
     _loadProcesses();
   }
 
@@ -158,6 +171,10 @@ class _ProcessesPageState extends State<ProcessesPage> {
         ),
       ),
     );
+  }
+
+  void refresh() {
+    _loadProcesses();
   }
 
   @override

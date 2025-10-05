@@ -4,7 +4,9 @@ import 'package:fl_chart/fl_chart.dart';
 import '../src/rust/api/simple.dart';
 
 class ChartsPage extends StatefulWidget {
-  const ChartsPage({super.key});
+  final ValueNotifier<int>? refreshNotifier;
+
+  const ChartsPage({super.key, this.refreshNotifier});
 
   @override
   State<ChartsPage> createState() => _ChartsPageState();
@@ -45,12 +47,18 @@ class _ChartsPageState extends State<ChartsPage> {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _loadSystemResources();
     });
+    widget.refreshNotifier?.addListener(_onRefresh);
   }
 
   @override
   void dispose() {
+    widget.refreshNotifier?.removeListener(_onRefresh);
     _timer?.cancel();
     super.dispose();
+  }
+
+  void _onRefresh() {
+    _loadSystemResources();
   }
 
   void _loadSystemResources() {
@@ -357,6 +365,10 @@ class _ChartsPageState extends State<ChartsPage> {
         ],
       ),
     );
+  }
+
+  void refresh() {
+    _loadSystemResources();
   }
 
   @override
